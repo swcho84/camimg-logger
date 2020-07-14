@@ -162,9 +162,9 @@ add_definitions(${BOOST_DEFINITIONS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/camimg_logger.cpp
-# )
+add_executable(camimg_logger_node src/main.cpp lib/camimg_logger_lib.cpp lib/config_param.cpp include/camimg_logger_lib.h include/config_param.h include/global_header.h)
+target_link_libraries(camimg_logger_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${OpenCV_LIBS} ${DLIB_LIBRARIES} dlib)
+add_dependencies(camimg_logger_node ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
