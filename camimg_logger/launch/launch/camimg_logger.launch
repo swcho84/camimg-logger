@@ -1,0 +1,7 @@
+<launch>
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find camimg_logger)/config/rosconsole.config"/>
+
+  <rosparam command="load" file="$(find camimg_logger)/config/params.yaml"/>
+  
+  <node name="camimg_logger" pkg="camimg_logger" type="camimg_logger_node" output="screen" />
+</launch>

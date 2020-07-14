@@ -1,6 +1,18 @@
 MyntEyeDStereoCam:
-  TopicName:
-    ColorImg: 
-    DepthImg:
-    ImuData:
-    
+  SubTopicName:
+    CamInfo: "/mynteye/left/camera_info"
+    ColorImg: "/mynteye/left/image_color"
+    DepthImg: "/mynteye/depth/image_raw"
+    ImuData: "/mynteye/imu/data_raw_processed"
+  
+  PubTopicName:
+    ImgImuSync: "/mynteye/synced_data"
+
+# case 0: desktop/laptop
+# case 1: jetson tx2/nano/xavier
+CamImgLog:
+  Case: 0
+  Info:
+    Name: "left_color_img"
+    Hz: "1.0"
+    Type: "png"

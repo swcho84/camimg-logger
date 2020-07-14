@@ -22,7 +22,30 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(dlib REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+
+## System dependencies are found with CMake's conventions
+find_package(Boost REQUIRED COMPONENTS system thread)
+
+#find_package(cpprestsdk REQUIRED) # Works for libcpprest ver2.10 or higher.
+find_library(CPPREST_LIB cpprest)
+
+# using eigen3
+find_library(Eigen3 REQUIRED eigen3)
+include_directories(${EIGEN3_INCLUDE_DIR})
+add_definitions(${EIGEN3_DEFINITIONS})
+
+if(NOT EIGEN3_FOUND)
+    # Fallback to cmake_modules
+    find_package(cmake_modules REQUIRED)
+    find_package(Eigen REQUIRED)
+    set(EIGEN3_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
+    set(EIGEN3_LIBRARIES ${EIGEN_LIBRARIES})  # Not strictly necessary as Eigen is head only
+    # Possibly map additional variables to the EIGEN3_ prefix.
+else()
+    set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
+endif()
+
+# using opencv
 find_package(OpenCV 3.4 REQUIRED
   COMPONENTS
     opencv_core
@@ -138,6 +161,8 @@ catkin_package(
   message_generation
   message_runtime
   message_filters
+  DEPENDS
+  Eigen
 )
 
 
@@ -155,6 +180,7 @@ include_directories(
   ${BOOST_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${DLIB_INCLUDE_DIR}
+  /usr/local/include
 )
 
 link_directories(${BOOST_LIBRARY_DIRS} /usr/local/lib /usr/lib)
@@ -162,8 +188,8 @@ add_definitions(${BOOST_DEFINITIONS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 
 ## Declare a C++ library
-add_executable(camimg_logger_node src/main.cpp lib/camimg_logger_lib.cpp lib/config_param.cpp include/camimg_logger_lib.h include/config_param.h include/global_header.h)
-target_link_libraries(camimg_logger_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${OpenCV_LIBS} ${DLIB_LIBRARIES} dlib)
+add_executable(camimg_logger_node src/main.cpp lib/mynteye_img_logger_lib.cpp lib/config_param.cpp include/mynteye_img_logger_lib.h include/config_param.h include/global_header.h include/var_struct.h)
+target_link_libraries(camimg_logger_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${EIGEN_LIBRARIES} ${OpenCV_LIBS} ${DLIB_LIBRARIES} dlib pthread cpprest serial)
 add_dependencies(camimg_logger_node ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library

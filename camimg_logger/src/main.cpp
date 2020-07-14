@@ -1,4 +1,4 @@
-#include "camimg_logger_lib.h"
+#include "mynteye_img_logger_lib.h"
 
 using namespace std;
 using namespace ros;
@@ -22,18 +22,28 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  // main class
-  CamImgLogger camImgLogger(cfg);
+  // main class for mynteye stereo camera
+  MyntEyeImgLogger myntEyeImgLogger(cfg);
 
   // Tell ROS how fast to run this node.
-  Rate loopRate(30);
+  Rate loopRate(60);
+
+  // for calculating dt
+  cfg.rosCurrTime = ros::Time::now();
+  cfg.rosLastTime = ros::Time::now();
 
   // Main loop.
   while (ok())
   {
-    camImgLogger.MainLoop();
-
+    // check for incoming messages
     spinOnce();
+    cfg.rosCurrTime = ros::Time::now();
+    cfg.dt = (cfg.rosCurrTime - cfg.rosLastTime).toSec();
+
+    // main loop for mynteye camera
+    myntEyeImgLogger.MainLoop(cfg.dt);
+
+    cfg.rosLastTime = ros::Time::now();
     loopRate.sleep();
   }
 
