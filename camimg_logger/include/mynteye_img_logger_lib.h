@@ -36,7 +36,6 @@ private:
   image_transport::ImageTransport it_;
 
   // ROS message for images
-  cv_bridge::CvImagePtr cvPtrImgSrc_;
   cv_bridge::CvImagePtr cvPtrImgColorSrc_;
   cv_bridge::CvImagePtr cvPtrImgDepthSrc_;
 

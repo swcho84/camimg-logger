@@ -65,7 +65,7 @@ void MyntEyeImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColor,
   imgColorRaw.copyTo(imgColorRaw_);
   imgDepthRaw.copyTo(imgDepthRaw_);
 
-  // image width and height info. (h1024, w2048)
+  // image width and height info.
   nHeight_ = imgColorRaw.rows;
   nWidth_ = imgColorRaw.cols;
 
@@ -78,6 +78,10 @@ void MyntEyeImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColor,
 
   // generating inertial info w.r.t. body axis
   bodyInertialInfo_ = GenImuData(msgImuData);
+
+  // getting depth value
+  // float distance = 0.001*imgDepthRaw.at<u_int16_t>(320, 240);
+  // std::cout<<distance<<std::endl;
 }
 
 // main loop

@@ -8,13 +8,25 @@ MyntEyeDStereoCam:
   PubTopicName:
     ImgImuSync: "/mynteye/synced_data"
 
+RealSenseStereoCam:
+  SubTopicName:
+    CamInfo: "/realsense/color/camera_info"
+    ColorImg: "/realsense/color/image_rect_color"
+    DepthImg: "/realsense/aligned_depth_to_color/image_raw"
+    GyroData: "/realsense/gyro/sample"
+    AccData: "/realsense/accel/sample"
+
+  PubTopicName:
+    ImuData: "/realsense/imu_data"
+    ImgImuSync: "/realsense/synced_data"
+
 # case 1: desktop/laptop
 # case 2: jetson tx2/nano/xavier
 # sensor 11: mynteye camera D1000-50 or D1000-120
 # sensor 22: realsense camera R435i
 CamImgLog:
   ComCase: 1
-  Sensor: 11
+  Sensor: 22
   Info:
     Name: "left_color_img"
     Hz: "1.0"

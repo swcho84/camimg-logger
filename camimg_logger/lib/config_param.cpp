@@ -28,14 +28,25 @@ bool ConfigParam::ReadRosParams()
     // general information
     strHomeName = getenv("HOME");
 
-    // topic name, for subscriber
+    // topic name, for subscriber, mynteye stereo camera
     ReadRosParam(nh, "/MyntEyeDStereoCam/SubTopicName/CamInfo", strSubTpNmMyntEyeCamInfo);
     ReadRosParam(nh, "/MyntEyeDStereoCam/SubTopicName/ColorImg", strSubTpNmMyntEyeImgLeftColor);
     ReadRosParam(nh, "/MyntEyeDStereoCam/SubTopicName/DepthImg", strSubTpNmMyntEyeImgDepthRaw);
     ReadRosParam(nh, "/MyntEyeDStereoCam/SubTopicName/ImuData", strSubTpNmMyntEyeImuDataProc);
 
-    // topic name, for publisher
+    // topic name, for publisher, mynteye stereo camera
     ReadRosParam(nh, "/MyntEyeDStereoCam/PubTopicName/ImgImuSync", strPubTpNmMyntEyeImgImuSync);
+
+    // topic name, for subscriber, realsense stereo camera
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/CamInfo", strSubTpNmRsCamInfo);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/ColorImg", strSubTpNmRsImgColorRect);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/DepthImg", strSubTpNmRsImgDepthAligned);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/GyroData", strSubTpNmRsGyroDataProc);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/AccData", strSubTpNmRsAccDataProc);
+
+    // topic name, for publisher, realsense stereo camera
+    ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/ImuData", strPubTpNmRsImuDataProc);
+    ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/ImgImuSync", strPubTpNmRsImgImuSync);
 
     // camera image logger folder and speed info.
     ReadRosParam(nh, "/CamImgLog/ComCase", nCamImgLogComCase);

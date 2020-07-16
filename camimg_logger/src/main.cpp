@@ -27,6 +27,27 @@ int main(int argc, char** argv)
   MyntEyeImgLogger myntEyeImgLogger(cfg);
   RealSenseImgLogger realSenseImgLogger(cfg);
 
+  // selecting main loop for image logger
+  switch (cfg.nCamImgLogSensor)
+  {
+    case MYNTEYE:
+    {
+      ROS_INFO("usecase: mynteye stereo camera");
+      break;
+    }
+    case REALSENSE:
+    {
+      ROS_INFO("usecase: realsense stereo camera");
+      break;
+    }
+    default:
+    {
+      ROS_INFO("Please select the correct sensor..");
+      return 0;
+      break;
+    }
+  }
+
   // Tell ROS how fast to run this node.
   Rate loopRate(30);
 
