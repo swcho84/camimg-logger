@@ -30,7 +30,8 @@ find_package(Boost REQUIRED COMPONENTS system thread)
 find_library(CPPREST_LIB cpprest)
 
 # using eigen3
-find_library(Eigen3 REQUIRED eigen3)
+find_package(PkgConfig)
+pkg_search_module(Eigen3 REQUIRED eigen3)
 include_directories(${EIGEN3_INCLUDE_DIR})
 add_definitions(${EIGEN3_DEFINITIONS})
 
@@ -46,7 +47,7 @@ else()
 endif()
 
 # using opencv
-find_package(OpenCV 3.4 REQUIRED
+find_package(OpenCV 4.2 REQUIRED
   COMPONENTS
     opencv_core
     opencv_imgproc
