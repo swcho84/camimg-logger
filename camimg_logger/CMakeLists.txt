@@ -189,7 +189,7 @@ add_definitions(${BOOST_DEFINITIONS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 
 ## Declare a C++ library
-add_executable(camimg_logger_node src/main.cpp lib/mynteye_img_logger_lib.cpp lib/config_param.cpp include/mynteye_img_logger_lib.h include/config_param.h include/global_header.h include/var_struct.h)
+add_executable(camimg_logger_node src/main.cpp lib/realsense_img_logger_lib.cpp include/realsense_img_logger_lib.h lib/mynteye_img_logger_lib.cpp include/mynteye_img_logger_lib.h lib/config_param.cpp include/config_param.h include/global_header.h include/var_struct.h)
 target_link_libraries(camimg_logger_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${EIGEN_LIBRARIES} ${OpenCV_LIBS} ${DLIB_LIBRARIES} dlib pthread cpprest serial)
 add_dependencies(camimg_logger_node ${catkin_EXPORTED_TARGETS})
 

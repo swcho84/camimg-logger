@@ -56,7 +56,8 @@ public:
   string strCamImgLogFolderNm;
   string strCamImgLogFolderPath;
 
-  int nCamImgLogCase;
+  int nCamImgLogComCase;
+  int nCamImgLogSensor;
 
   double dCamImgLogHz;
 

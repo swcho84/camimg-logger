@@ -1,5 +1,5 @@
-#ifndef CAMIMG_LOGGER_CAMIMG_LOGGER_LIB_H
-#define CAMIMG_LOGGER_CAMIMG_LOGGER_LIB_H
+#ifndef CAMIMG_LOGGER_MYNTEYE_IMG_LOGGER_LIB_H
+#define CAMIMG_LOGGER_MYNTEYE_IMG_LOGGER_LIB_H
 
 #include "global_header.h"
 #include "config_param.h"

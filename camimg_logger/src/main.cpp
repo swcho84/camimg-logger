@@ -1,4 +1,5 @@
 #include "mynteye_img_logger_lib.h"
+#include "realsense_img_logger_lib.h"
 
 using namespace std;
 using namespace ros;
@@ -22,11 +23,12 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  // main class for mynteye stereo camera
+  // selecting main class for image logger
   MyntEyeImgLogger myntEyeImgLogger(cfg);
+  RealSenseImgLogger realSenseImgLogger(cfg);
 
   // Tell ROS how fast to run this node.
-  Rate loopRate(60);
+  Rate loopRate(30);
 
   // for calculating dt
   cfg.rosCurrTime = ros::Time::now();
@@ -37,12 +39,33 @@ int main(int argc, char** argv)
   {
     // check for incoming messages
     spinOnce();
+
+    // calculating dt
     cfg.rosCurrTime = ros::Time::now();
     cfg.dt = (cfg.rosCurrTime - cfg.rosLastTime).toSec();
 
-    // main loop for mynteye camera
-    myntEyeImgLogger.MainLoop(cfg.dt);
+    // selecting main loop for image logger
+    switch (cfg.nCamImgLogSensor)
+    {
+      case MYNTEYE:
+      {
+        myntEyeImgLogger.MainLoop(cfg.dt);
+        break;
+      }
+      case REALSENSE:
+      {
+        realSenseImgLogger.MainLoop(cfg.dt);
+        break;
+      }
+      default:
+      {
+        ROS_INFO("Please select the correct sensor..");
+        return 0;
+        break;
+      }
+    }
 
+    // saving last loop time
     cfg.rosLastTime = ros::Time::now();
     loopRate.sleep();
   }

@@ -38,14 +38,15 @@ bool ConfigParam::ReadRosParams()
     ReadRosParam(nh, "/MyntEyeDStereoCam/PubTopicName/ImgImuSync", strPubTpNmMyntEyeImgImuSync);
 
     // camera image logger folder and speed info.
-    ReadRosParam(nh, "/CamImgLog/Case", nCamImgLogCase);
+    ReadRosParam(nh, "/CamImgLog/ComCase", nCamImgLogComCase);
+    ReadRosParam(nh, "/CamImgLog/Sensor", nCamImgLogSensor);
     ReadRosParam(nh, "/CamImgLog/Info/Type", strCamImgLogFileType);
     ReadRosParam(nh, "/CamImgLog/Info/Name", strCamImgLogFolderNm);
     ReadRosParam(nh, "/CamImgLog/Info/Hz", dCamImgLogHz);
 
     // making folder path
     string strMidPath;
-    switch (nCamImgLogCase)
+    switch (nCamImgLogComCase)
     {
       case MAINCOM:
       {

@@ -61,8 +61,11 @@
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Byte.h>
 
-#define MAINCOM 0
-#define EMBEDDED 1
+#define MAINCOM 1
+#define EMBEDDED 2
+
+#define MYNTEYE 11
+#define REALSENSE 22
 
 #define PI 3.141592
 #define R2D 180.0 / PI

@@ -8,10 +8,13 @@ MyntEyeDStereoCam:
   PubTopicName:
     ImgImuSync: "/mynteye/synced_data"
 
-# case 0: desktop/laptop
-# case 1: jetson tx2/nano/xavier
+# case 1: desktop/laptop
+# case 2: jetson tx2/nano/xavier
+# sensor 11: mynteye camera D1000-50 or D1000-120
+# sensor 22: realsense camera R435i
 CamImgLog:
-  Case: 0
+  ComCase: 1
+  Sensor: 11
   Info:
     Name: "left_color_img"
     Hz: "1.0"
