@@ -52,6 +52,8 @@ public:
   string strSubTpNmMyntEyeImuDataProc;
   string strPubTpNmMyntEyeImgImuSync;
 
+  int nMyntEyeSyncPolicy;
+
   string strSubTpNmRsCamInfo;
   string strSubTpNmRsImgColorRect;
   string strSubTpNmRsImgDepthAligned;
@@ -63,6 +65,8 @@ public:
   string strCamImgLogFileType;
   string strCamImgLogFolderNm;
   string strCamImgLogFolderPath;
+
+  int nRsSyncPolicy;
 
   int nCamImgLogComCase;
   int nCamImgLogSensor;

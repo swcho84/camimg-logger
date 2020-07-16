@@ -4,9 +4,10 @@ MyntEyeDStereoCam:
     ColorImg: "/mynteye/left/image_color"
     DepthImg: "/mynteye/depth/image_raw"
     ImuData: "/mynteye/imu/data_raw_processed"
-  
   PubTopicName:
     ImgImuSync: "/mynteye/synced_data"
+  SyncPolicy:
+    time: 10  
 
 RealSenseStereoCam:
   SubTopicName:
@@ -15,10 +16,11 @@ RealSenseStereoCam:
     DepthImg: "/realsense/aligned_depth_to_color/image_raw"
     GyroData: "/realsense/gyro/sample"
     AccData: "/realsense/accel/sample"
-
   PubTopicName:
     ImuData: "/realsense/imu_data"
     ImgImuSync: "/realsense/synced_data"
+  SyncPolicy:
+    time: 50  
 
 # case 1: desktop/laptop
 # case 2: jetson tx2/nano/xavier

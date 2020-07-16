@@ -19,8 +19,8 @@ RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
   subCamInfo_.reset(new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh_, cfgParam_.strSubTpNmRsCamInfo, 1));
   subGyroData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsGyroDataProc, 1));
   subAccData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsAccDataProc, 1));
-  sync_.reset(
-      new Sync(mySyncPolicy(100), *subColorRectImg_, *subDepthAlignedImg_, *subCamInfo_, *subGyroData_, *subAccData_));
+  sync_.reset(new Sync(mySyncPolicy(cfgParam_.nRsSyncPolicy), *subColorRectImg_, *subDepthAlignedImg_, *subCamInfo_,
+                       *subGyroData_, *subAccData_));
   sync_->registerCallback(boost::bind(&RealSenseImgLogger::CbSyncData, this, _1, _2, _3, _4, _5));
 }
 

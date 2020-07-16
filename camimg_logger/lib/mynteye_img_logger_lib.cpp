@@ -19,7 +19,8 @@ MyntEyeImgLogger::MyntEyeImgLogger(const ConfigParam& cfg)
   subCamLeftInfo_.reset(
       new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh_, cfgParam_.strSubTpNmMyntEyeCamInfo, 1));
   subImuData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmMyntEyeImuDataProc, 1));
-  sync_.reset(new Sync(mySyncPolicy(10), *subColorLeftImg_, *subDepthImg_, *subCamLeftInfo_, *subImuData_));
+  sync_.reset(new Sync(mySyncPolicy(cfgParam_.nMyntEyeSyncPolicy), *subColorLeftImg_, *subDepthImg_, *subCamLeftInfo_,
+                       *subImuData_));
   sync_->registerCallback(boost::bind(&MyntEyeImgLogger::CbSyncData, this, _1, _2, _3, _4));
 }
 

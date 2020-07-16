@@ -37,6 +37,9 @@ bool ConfigParam::ReadRosParams()
     // topic name, for publisher, mynteye stereo camera
     ReadRosParam(nh, "/MyntEyeDStereoCam/PubTopicName/ImgImuSync", strPubTpNmMyntEyeImgImuSync);
 
+    // params mynteye stereo camera
+    ReadRosParam(nh, "/MyntEyeDStereoCam/SyncPolicy/time", nMyntEyeSyncPolicy);
+
     // topic name, for subscriber, realsense stereo camera
     ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/CamInfo", strSubTpNmRsCamInfo);
     ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/ColorImg", strSubTpNmRsImgColorRect);
@@ -47,6 +50,9 @@ bool ConfigParam::ReadRosParams()
     // topic name, for publisher, realsense stereo camera
     ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/ImuData", strPubTpNmRsImuDataProc);
     ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/ImgImuSync", strPubTpNmRsImgImuSync);
+
+    // params realsense stereo camera
+    ReadRosParam(nh, "/RealSenseStereoCam/SyncPolicy/time", nRsSyncPolicy);
 
     // camera image logger folder and speed info.
     ReadRosParam(nh, "/CamImgLog/ComCase", nCamImgLogComCase);
