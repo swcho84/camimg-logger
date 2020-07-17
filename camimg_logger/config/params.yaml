@@ -27,7 +27,7 @@ RealSenseStereoCam:
 # sensor 11: mynteye camera D1000-50 or D1000-120
 # sensor 22: realsense camera R435i
 CamImgLog:
-  ComCase: 1
+  ComCase: 2
   Sensor: 22
   Info:
     Name: "left_color_img"
