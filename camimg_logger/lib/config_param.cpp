@@ -72,7 +72,7 @@ bool ConfigParam::ReadRosParams()
       }
       case EMBEDDED:
       {
-        strMidPath = "/camimg_log";
+        strMidPath = "/logdata";
         break;
       }
       default:
