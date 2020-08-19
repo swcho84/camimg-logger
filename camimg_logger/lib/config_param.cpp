@@ -54,6 +54,18 @@ bool ConfigParam::ReadRosParams()
     // params realsense stereo camera
     ReadRosParam(nh, "/RealSenseStereoCam/SyncPolicy/time", nRsSyncPolicy);
 
+    // topic name, for subscriber, rotors_simulator vi camera
+    ReadRosParam(nh, "/RotorsSimViCam/SubTopicName/CamInfo", strSubTpNmRotorSimViCamInfo);
+    ReadRosParam(nh, "/RotorsSimViCam/SubTopicName/ColorImg", strSubTpNmRotorSimViImgLeftColor);
+    ReadRosParam(nh, "/RotorsSimViCam/SubTopicName/DepthImg", strSubTpNmRotorSimViImgDepthRaw);
+    ReadRosParam(nh, "/RotorsSimViCam/SubTopicName/OdomData", strSubTpNmRotorSimViOdomData);
+
+    // topic name, for publisher, rotors_simulator vi camera
+    ReadRosParam(nh, "/RotorsSimViCam/PubTopicName/ImgImuSync", strPubTpNmRotorSimViImgImuSync);
+
+    // params rotors_simulator vi camera
+    ReadRosParam(nh, "/RotorsSimViCam/SyncPolicy/time", nRotorSimViSyncPolicy);
+
     // camera image logger folder and speed info.
     ReadRosParam(nh, "/CamImgLog/ComCase", nCamImgLogComCase);
     ReadRosParam(nh, "/CamImgLog/Sensor", nCamImgLogSensor);

@@ -62,11 +62,19 @@ public:
   string strPubTpNmRsImuDataProc;
   string strPubTpNmRsImgImuSync;
 
+  int nRsSyncPolicy;
+
+  string strSubTpNmRotorSimViCamInfo;
+  string strSubTpNmRotorSimViImgLeftColor;
+  string strSubTpNmRotorSimViImgDepthRaw;
+  string strSubTpNmRotorSimViOdomData;
+  string strPubTpNmRotorSimViImgImuSync;
+
+  int nRotorSimViSyncPolicy;
+
   string strCamImgLogFileType;
   string strCamImgLogFolderNm;
   string strCamImgLogFolderPath;
-
-  int nRsSyncPolicy;
 
   int nCamImgLogComCase;
   int nCamImgLogSensor;

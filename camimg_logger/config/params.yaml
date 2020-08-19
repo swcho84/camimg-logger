@@ -20,7 +20,18 @@ RealSenseStereoCam:
     ImuData: "/realsense/imu_data"
     ImgImuSync: "/realsense/synced_data"
   SyncPolicy:
-    time: 50  
+    time: 50
+
+RotorsSimViCam:
+  SubTopicName:
+    CamInfo: "/firefly/vi_sensor/left/camera_info"
+    ColorImg: "/firefly/vi_sensor/left/image_raw"
+    DepthImg: "/firefly/vi_sensor/camera_depth/camera/image_raw"
+    OdomData: "/firefly/odometry_sensor1/odometry"
+  PubTopicName:
+    ImgImuSync: "/firefly/synced_data"
+  SyncPolicy:
+    time: 10    
 
 # case 1: desktop/laptop
 # case 2: jetson tx2/nano/xavier

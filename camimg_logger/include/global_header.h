@@ -49,6 +49,9 @@
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/Imu.h>
 
+// for subscribing pose information (timestamp should be needed for time sync)
+#include <nav_msgs/Odometry.h>
+
 // for subscribing multiple topic with the syncronizer
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -66,6 +69,7 @@
 
 #define MYNTEYE 11
 #define REALSENSE 22
+#define ROTORSVISCAM 33
 
 #define PI 3.141592
 #define R2D 180.0 / PI

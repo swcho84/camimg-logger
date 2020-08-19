@@ -1,5 +1,6 @@
 #include "mynteye_img_logger_lib.h"
 #include "realsense_img_logger_lib.h"
+#include "rotors_sim_vi_logger_lib.h"
 
 using namespace std;
 using namespace ros;
@@ -26,6 +27,7 @@ int main(int argc, char** argv)
   // selecting main class for image logger
   MyntEyeImgLogger myntEyeImgLogger(cfg);
   RealSenseImgLogger realSenseImgLogger(cfg);
+  RotorSimViLogger rotorSimViLogger(cfg);
 
   // selecting main loop for image logger
   switch (cfg.nCamImgLogSensor)
@@ -38,6 +40,11 @@ int main(int argc, char** argv)
     case REALSENSE:
     {
       ROS_INFO("usecase: realsense stereo camera");
+      break;
+    }
+    case ROTORSVISCAM:
+    {
+      ROS_INFO("usecase: rotors_simulator vi camera");
       break;
     }
     default:
@@ -76,6 +83,11 @@ int main(int argc, char** argv)
       case REALSENSE:
       {
         realSenseImgLogger.MainLoop(cfg.dt);
+        break;
+      }
+      case ROTORSVISCAM:
+      {
+        rotorSimViLogger.MainLoop(cfg.dt);
         break;
       }
       default:
