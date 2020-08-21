@@ -7,6 +7,7 @@
 using namespace std;
 using namespace ros;
 using namespace cv;
+using namespace Eigen;
 
 class RotorSimViLogger
 {
@@ -20,8 +21,14 @@ private:
   ConfigParam cfgParam_;
 
   sensor_msgs::CameraInfo camInfoRaw_;
+  nav_msgs::Odometry odomData_;
 
   bool GenLogFolder(string strFolderPath);
+  bool SaveRawImg(double dt, Mat imgInput, string strFolderPath);
+  Vector3d ConvertPosFromEnuToNed(Vector3d posEnu);
+  Matrix3d CalcDcmEuler321(Vector3d eulerAtt);
+  Vector3d CalcYPREulerAngFromQuaternion(Quaterniond q);
+  double wrapD(double angle);
 
   void CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColorRect,
                   const sensor_msgs::ImageConstPtr& msgImgDepthAligned,
@@ -51,6 +58,11 @@ private:
   bool bStartCamCallBack_;
 
   double dAccumTime_;
+
+  Mat imgColorRaw_;
+  Mat imgDepthRaw_;
+
+  Vector3d eularAng;
 };
 
 #endif

@@ -37,9 +37,10 @@ RotorsSimViCam:
 # case 2: jetson tx2/nano/xavier
 # sensor 11: mynteye camera D1000-50 or D1000-120
 # sensor 22: realsense camera R435i
+# sensor 33: rotors_simulator vi stereo camera
 CamImgLog:
   ComCase: 1
-  Sensor: 22
+  Sensor: 33
   Info:
     Name: "left_color_img"
     Hz: "1.0"
