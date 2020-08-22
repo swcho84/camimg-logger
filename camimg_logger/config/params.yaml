@@ -22,7 +22,7 @@ RealSenseStereoCam:
     ImgImuSync: "/realsense/synced_data"
     FakeUsbImg: "/usb_cam/image_raw"
   SyncPolicy:
-    time: 100
+    time: 1000
 
 RotorsSimViCam:
   SubTopicName:
@@ -44,5 +44,5 @@ CamImgLog:
   Sensor: 22
   Info:
     Name: "left_color_img"
-    Hz: "1.0"
+    Hz: 1.0
     Type: "png"

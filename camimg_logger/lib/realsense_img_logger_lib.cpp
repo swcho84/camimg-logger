@@ -7,23 +7,23 @@ using namespace Eigen;
 using namespace message_filters;
 
 RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
-  : cfgParam_(cfg), it_(nh_), nHeight_(640), nWidth_(480), bStartCamCallBack_(false), dAccumTime_(0.0)
+  : cfgParam_(cfg), it_(nh_), nHeight_(640), nWidth_(480), bStartCamCallBack_(false), dAccumTime_(0.0), dAhrsLogCount_(0.0), nSaveCounter_(0)
 {
   // generating callback function using synced subscriber
   subColorRectImg_.reset(
-      new message_filters::Subscriber<sensor_msgs::Image>(nh_, cfgParam_.strSubTpNmRsImgColorRect, 1));
+      new message_filters::Subscriber<sensor_msgs::Image>(nh_, cfgParam_.strSubTpNmRsImgColorRect, 100));
   subDepthAlignedImg_.reset(
-      new message_filters::Subscriber<sensor_msgs::Image>(nh_, cfgParam_.strSubTpNmRsImgDepthAligned, 1));
-  subCamInfo_.reset(new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh_, cfgParam_.strSubTpNmRsCamInfo, 1));
-  subGyroData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsGyroDataProc, 1));
-  subAccData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsAccDataProc, 1));
-  subAttData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsAttDataProc, 1));
+      new message_filters::Subscriber<sensor_msgs::Image>(nh_, cfgParam_.strSubTpNmRsImgDepthAligned, 100));
+  subCamInfo_.reset(new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh_, cfgParam_.strSubTpNmRsCamInfo, 100));
+  subGyroData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsGyroDataProc, 100));
+  subAccData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsAccDataProc, 100));
+  subAttData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsAttDataProc, 100));
   sync_.reset(new Sync(mySyncPolicy(cfgParam_.nRsSyncPolicy), *subColorRectImg_, *subDepthAlignedImg_, *subCamInfo_,
                        *subGyroData_, *subAccData_, *subAttData_));
   sync_->registerCallback(boost::bind(&RealSenseImgLogger::CbSyncData, this, _1, _2, _3, _4, _5, _6));
 
   // generating publisher for the fake usb cam
-  pubFakeUsbImgRaw_ = it_.advertise(cfgParam_.strPubTpNmRsFakeUsbImgRaw, 1);  
+  pubFakeUsbImgRaw_ = it_.advertise(cfgParam_.strPubTpNmRsFakeUsbImgRaw, 1);
 }
 
 RealSenseImgLogger::~RealSenseImgLogger()
@@ -87,8 +87,16 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
   // float distance = 0.001*imgDepthRaw.at<u_int16_t>(320, 240);
   // std::cout<<distance<<std::endl;
 
+  // generating saved counter in fake usb raw image
+  int thickness = 3;
+  Point location(20, 50);
+  int font = FONT_HERSHEY_SIMPLEX;
+  double fontScale = 1.2;
+  string strCounter;
+  strCounter = "saved: " + to_string(nSaveCounter_ - 1);
+  putText(imgColorRaw_, strCounter, location, font, fontScale, Scalar(0, 0, 255), thickness);
   sensor_msgs::ImagePtr msgFakeUsbImgRaw = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imgColorRaw_).toImageMsg();
-  pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);  
+  pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);
 }
 
 // main loop
@@ -96,10 +104,18 @@ void RealSenseImgLogger::MainLoop(double dt)
 {
   // executing this loop only bStartCamCallBack_ is true
   if (!bStartCamCallBack_)
+  {
+    ROS_INFO_DELAYED_THROTTLE(10, "bStartCamCallBack_ is false..");
     return;
+  }
 
   // saving image in the target folder
-  SaveRawImg(dt, imgColorRaw_, cfgParam_.strCamImgLogFolderPath);
+  bool bSaveRes = false;
+  bSaveRes = SaveRawImg(dt, imgColorRaw_, cfgParam_.strCamImgLogFolderPath);
+
+  // saving AHRS data in the target file
+  timeInfo_ = cfgParam_.GenLocalTimeVec(cfgParam_.GenLocalTimeStringFacet());
+  LoggingStreamState(dt);
 
   // for highgui window
   waitKey(5);
@@ -123,6 +139,11 @@ bool RealSenseImgLogger::SaveRawImg(double dt, Mat imgInput, string strFolderPat
     imwrite(strFilePath, imgInput);
     dAccumTime_ = 0.0;
   }
+
+  // counting saved result
+  vector<String> vecPicFileNm;
+  glob(strFolderPath, vecPicFileNm, true);
+  nSaveCounter_ = (int)(vecPicFileNm.size());
 
   return bRes;
 }
@@ -177,13 +198,13 @@ AHRSinfo RealSenseImgLogger::GenImuData(const sensor_msgs::ImuConstPtr& msgGyroD
   GyroRaw = *msgGyroData;
   AccRaw = *msgAccData;
   AttRaw = *msgAttData;
-  
+
   Quaterniond quatAttRazorImu;
   Vector3d eularAttRazorImu;
   quatAttRazorImu.x() = AttRaw.orientation.x;
   quatAttRazorImu.y() = AttRaw.orientation.y;
   quatAttRazorImu.z() = AttRaw.orientation.z;
-  quatAttRazorImu.w() = AttRaw.orientation.w;      
+  quatAttRazorImu.w() = AttRaw.orientation.w;
   eularAttRazorImu = CalcYPREulerAngFromQuaternion(quatAttRazorImu);
 
   // using NED frame and 3-2-1 conversion
@@ -200,27 +221,6 @@ AHRSinfo RealSenseImgLogger::GenImuData(const sensor_msgs::ImuConstPtr& msgGyroD
 
   return res;
 }
-
-
-// // making imu data
-// BodyLinAccRotRate RealSenseImgLogger::GenImuData(const sensor_msgs::ImuConstPtr& msgGyroData,
-//                                                  const sensor_msgs::ImuConstPtr& msgAccData)
-// {
-//   sensor_msgs::Imu GyroRaw;
-//   sensor_msgs::Imu AccRaw;
-//   GyroRaw = *msgGyroData;
-//   AccRaw = *msgAccData;
-
-//   BodyLinAccRotRate res;
-//   res.linAcc(0) = AccRaw.linear_acceleration.x;
-//   res.linAcc(1) = AccRaw.linear_acceleration.y;
-//   res.linAcc(2) = AccRaw.linear_acceleration.z;
-//   res.rotRate(0) = GyroRaw.angular_velocity.x;
-//   res.rotRate(1) = GyroRaw.angular_velocity.y;
-//   res.rotRate(2) = GyroRaw.angular_velocity.z;
-
-//   return res;
-// }
 
 // making normalized depth image
 Mat RealSenseImgLogger::GenNormDepthImg(Mat imgInput)
@@ -282,4 +282,123 @@ double RealSenseImgLogger::wrapD(double angle)
   }
 
   return angle;
+}
+
+// generating log file with column info
+bool RealSenseImgLogger::GenLogFile(string strFilePath)
+{
+  // for debugging
+  ROS_INFO("Log file Path:%s", strFilePath.c_str());
+
+  // generating log file with column info
+  if ((logFp_ = fopen(strFilePath.c_str(), "wb")) != NULL)
+  {
+    if (fprintf(logFp_, GenLogColNameInfo().c_str()) >= 0)
+    {
+      ROS_INFO("Log file: opened, write: success..");
+      return true;
+    }
+    else
+    {
+      ROS_ERROR("Log file: opened, write: failed..");
+      fclose(logFp_);
+      return false;
+    }
+  }
+  else
+  {
+    ROS_ERROR("Log file: opened, write: failed..");
+    fclose(logFp_);
+    return false;
+  }
+}
+
+// generating column name info for log file
+string RealSenseImgLogger::GenLogColNameInfo()
+{
+  string strRes;
+
+  // column information
+  ROS_INFO("Log file column setting");
+  strRes = "year,month,day,hh,mm,ss,ros_time,"
+           "roll,pitch,yaw,"
+           "p,q,r,"
+           "xbacc,ybacc,zbacc\n";
+
+  return strRes;
+}
+
+// logging data with the sampling counter
+void RealSenseImgLogger::LoggingStreamState(double dt)
+{
+  if (!bLogFileOpenStatus)
+  {
+    ROS_ERROR_DELAYED_THROTTLE(5, "Log file and write status error..please check..");
+    return;
+  }
+
+  // counter, static variable
+  dAhrsLogCount_ += dt;
+
+  // writing data w.r.t the sampling hz
+  if (dAhrsLogCount_ > (cfgParam_.dTimeAhrsLog))
+  {
+    if (!WritingData())
+    {
+      ROS_ERROR("Log write result: failed..");
+    }
+
+    dAhrsLogCount_ = 0.0;
+  }
+}
+
+// generating column type for log file
+string RealSenseImgLogger::GenLogColTypeInfo()
+{
+  string strRes;
+
+  // column information
+  strRes = "%.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %.20Lf, "
+            "%.4lf, %.4lf, %.4lf, "
+            "%.4lf, %.4lf, %.4lf, "
+            "%.4lf, %.4lf, %.4lf\n";
+ 
+  return strRes;
+}
+
+// writing data w.r.t the sampling hz
+bool RealSenseImgLogger::WritingData()
+{
+  // current: only telematry information
+  // to do: with telecommand information
+  bool bState = true;
+  long double dRostime = (long double)(ros::Time::now().toSec());
+
+  if (fprintf(logFp_, GenLogColTypeInfo().c_str(),
+              timeInfo_.dYear,
+              timeInfo_.dMonth,
+              timeInfo_.dDay,
+              timeInfo_.dHour,
+              timeInfo_.dMin,
+              timeInfo_.dSec,
+              dRostime,
+              ahrsInfo_.euler(0),
+              ahrsInfo_.euler(1),
+              ahrsInfo_.euler(2),
+              ahrsInfo_.linAcc(0),
+              ahrsInfo_.linAcc(1),
+              ahrsInfo_.linAcc(2),
+              ahrsInfo_.rotRate(0),
+              ahrsInfo_.rotRate(1),
+              ahrsInfo_.rotRate(2)) < 0)
+  {
+    ROS_ERROR("Log write, both: failed..");
+    bState = false;
+  }
+  else
+  {
+    bState = true;
+  }
+
+  return bState;
 }

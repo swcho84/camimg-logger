@@ -17,6 +17,10 @@ public:
 
   void MainLoop(double dt);
   bool GenLogFolder(string strFolderPath);
+  bool GenLogFile(string strFilePath);
+
+  bool bLogFolderOpenStatus;
+  bool bLogFileOpenStatus;
 
 private:
   ConfigParam cfgParam_;
@@ -37,6 +41,11 @@ private:
 
   Vector3d CalcYPREulerAngFromQuaternion(Quaterniond q);
   double wrapD(double angle);
+
+  string GenLogColNameInfo();
+  bool WritingData();
+  string GenLogColTypeInfo();
+  void LoggingStreamState(double dt);
 
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
@@ -66,10 +75,17 @@ private:
   bool bStartCamCallBack_;
 
   double dAccumTime_;
+  double dAhrsLogCount_;
+
+  int nSaveCounter_;
+
+  FILE* logFp_;
 
   Mat imgColorRaw_;
   Mat imgDepthNorm_;
   Mat imgDepthFalseColor_;
+
+  TimeDB timeInfo_;
 };
 
 #endif

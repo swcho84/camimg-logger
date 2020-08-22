@@ -77,10 +77,12 @@ public:
   string strCamImgLogFileType;
   string strCamImgLogFolderNm;
   string strCamImgLogFolderPath;
+  string strAhrsLogFilePath;
 
   int nCamImgLogComCase;
   int nCamImgLogSensor;
-
+  
+  double dTimeAhrsLog;
   double dCamImgLogHz;
 
 private:

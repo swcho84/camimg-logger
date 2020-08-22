@@ -45,7 +45,8 @@ int main(int argc, char** argv)
       ROS_INFO("usecase: realsense stereo camera");
 
       // generating log folder
-      realSenseImgLogger.GenLogFolder(cfg.strCamImgLogFolderPath);
+      realSenseImgLogger.bLogFolderOpenStatus = realSenseImgLogger.GenLogFolder(cfg.strCamImgLogFolderPath);
+      realSenseImgLogger.bLogFileOpenStatus = realSenseImgLogger.GenLogFile(cfg.strAhrsLogFilePath);
       break;
     }
     case ROTORSVISCAM:
@@ -65,7 +66,7 @@ int main(int argc, char** argv)
   }
 
   // Tell ROS how fast to run this node.
-  Rate loopRate(30);
+  Rate loopRate(100);
 
   // for calculating dt
   cfg.rosCurrTime = ros::Time::now();
