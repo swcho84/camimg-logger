@@ -8,9 +8,6 @@ using namespace message_filters;
 MyntEyeImgLogger::MyntEyeImgLogger(const ConfigParam& cfg)
   : cfgParam_(cfg), it_(nh_), nHeight_(640), nWidth_(480), bStartCamCallBack_(false), dAccumTime_(0.0)
 {
-  // generating log folder
-  GenLogFolder(cfgParam_.strCamImgLogFolderPath);
-
   // generating callback function using synced subscriber
   subColorLeftImg_.reset(
       new message_filters::Subscriber<sensor_msgs::Image>(nh_, cfgParam_.strSubTpNmMyntEyeImgLeftColor, 1));

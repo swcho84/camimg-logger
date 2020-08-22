@@ -16,6 +16,7 @@ public:
   ~RotorSimViLogger();
 
   void MainLoop(double dt);
+  bool GenLogFolder(string strFolderPath);
 
 private:
   ConfigParam cfgParam_;
@@ -23,7 +24,6 @@ private:
   sensor_msgs::CameraInfo camInfoRaw_;
   nav_msgs::Odometry odomData_;
 
-  bool GenLogFolder(string strFolderPath);
   bool SaveRawImg(double dt, Mat imgInput, string strFolderPath);
   Vector3d ConvertPosFromEnuToNed(Vector3d posEnu);
   Matrix3d CalcDcmEuler321(Vector3d eulerAtt);

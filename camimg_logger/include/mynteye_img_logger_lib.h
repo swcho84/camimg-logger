@@ -15,14 +15,13 @@ public:
   ~MyntEyeImgLogger();
 
   void MainLoop(double dt);
+  bool GenLogFolder(string strFolderPath);
 
 private:
   ConfigParam cfgParam_;
   BodyLinAccRotRate bodyInertialInfo_;
 
   sensor_msgs::CameraInfo camInfoRaw_;
-
-  bool GenLogFolder(string strFolderPath);
   bool SaveRawImg(double dt, Mat imgInput, string strFolderPath);
 
   Mat GenFalseColorDepthImg(Mat imgInput);

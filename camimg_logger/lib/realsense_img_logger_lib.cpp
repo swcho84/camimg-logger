@@ -8,9 +8,6 @@ using namespace message_filters;
 RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
   : cfgParam_(cfg), it_(nh_), nHeight_(640), nWidth_(480), bStartCamCallBack_(false), dAccumTime_(0.0)
 {
-  // generating log folder
-  GenLogFolder(cfgParam_.strCamImgLogFolderPath);
-
   // generating callback function using synced subscriber
   subColorRectImg_.reset(
       new message_filters::Subscriber<sensor_msgs::Image>(nh_, cfgParam_.strSubTpNmRsImgColorRect, 1));
