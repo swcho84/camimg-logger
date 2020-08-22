@@ -7,6 +7,7 @@
 using namespace std;
 using namespace ros;
 using namespace cv;
+using namespace Eigen;
 
 class RealSenseImgLogger
 {
@@ -15,24 +16,27 @@ public:
   ~RealSenseImgLogger();
 
   void MainLoop(double dt);
+  bool GenLogFolder(string strFolderPath);
 
 private:
   ConfigParam cfgParam_;
-  BodyLinAccRotRate bodyInertialInfo_;
+  AHRSinfo ahrsInfo_;
 
   sensor_msgs::CameraInfo camInfoRaw_;
 
-  bool GenLogFolder(string strFolderPath);
   bool SaveRawImg(double dt, Mat imgInput, string strFolderPath);
 
   Mat GenNormDepthImg(Mat imgInput);
   Mat GenFalseColorDepthImg(Mat imgInput);
-  BodyLinAccRotRate GenImuData(const sensor_msgs::ImuConstPtr& msgGyroData, const sensor_msgs::ImuConstPtr& msgAccData);
-
+  AHRSinfo GenImuData(const sensor_msgs::ImuConstPtr& msgGyroData, const sensor_msgs::ImuConstPtr& msgAccData,
+                      const sensor_msgs::ImuConstPtr& msgAttData);
   void CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColorRect,
                   const sensor_msgs::ImageConstPtr& msgImgDepthAligned,
                   const sensor_msgs::CameraInfoConstPtr& msgCamInfo, const sensor_msgs::ImuConstPtr& msgGyroData,
-                  const sensor_msgs::ImuConstPtr& msgAccData);
+                  const sensor_msgs::ImuConstPtr& msgAccData, const sensor_msgs::ImuConstPtr& msgAttData);
+
+  Vector3d CalcYPREulerAngFromQuaternion(Quaterniond q);
+  double wrapD(double angle);
 
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
@@ -40,6 +44,7 @@ private:
   // ROS message for images
   cv_bridge::CvImagePtr cvPtrImgColorSrc_;
   cv_bridge::CvImagePtr cvPtrImgDepthSrc_;
+  image_transport::Publisher pubFakeUsbImgRaw_;
 
   // synced subscriber
   std::unique_ptr<message_filters::Subscriber<sensor_msgs::Image> > subColorRectImg_;
@@ -47,8 +52,10 @@ private:
   std::unique_ptr<message_filters::Subscriber<sensor_msgs::CameraInfo> > subCamInfo_;
   std::unique_ptr<message_filters::Subscriber<sensor_msgs::Imu> > subGyroData_;
   std::unique_ptr<message_filters::Subscriber<sensor_msgs::Imu> > subAccData_;
+  std::unique_ptr<message_filters::Subscriber<sensor_msgs::Imu> > subAttData_;
   typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image,
-                                                          sensor_msgs::CameraInfo, sensor_msgs::Imu, sensor_msgs::Imu>
+                                                          sensor_msgs::CameraInfo, sensor_msgs::Imu, sensor_msgs::Imu,
+                                                          sensor_msgs::Imu>
       mySyncPolicy;
   typedef message_filters::Synchronizer<mySyncPolicy> Sync;
   std::shared_ptr<Sync> sync_;

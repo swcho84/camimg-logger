@@ -3,14 +3,12 @@
 using namespace std;
 using namespace ros;
 using namespace cv;
+using namespace Eigen;
 using namespace message_filters;
 
 RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
   : cfgParam_(cfg), it_(nh_), nHeight_(640), nWidth_(480), bStartCamCallBack_(false), dAccumTime_(0.0)
 {
-  // generating log folder
-  GenLogFolder(cfgParam_.strCamImgLogFolderPath);
-
   // generating callback function using synced subscriber
   subColorRectImg_.reset(
       new message_filters::Subscriber<sensor_msgs::Image>(nh_, cfgParam_.strSubTpNmRsImgColorRect, 1));
@@ -19,9 +17,13 @@ RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
   subCamInfo_.reset(new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh_, cfgParam_.strSubTpNmRsCamInfo, 1));
   subGyroData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsGyroDataProc, 1));
   subAccData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsAccDataProc, 1));
+  subAttData_.reset(new message_filters::Subscriber<sensor_msgs::Imu>(nh_, cfgParam_.strSubTpNmRsAttDataProc, 1));
   sync_.reset(new Sync(mySyncPolicy(cfgParam_.nRsSyncPolicy), *subColorRectImg_, *subDepthAlignedImg_, *subCamInfo_,
-                       *subGyroData_, *subAccData_));
-  sync_->registerCallback(boost::bind(&RealSenseImgLogger::CbSyncData, this, _1, _2, _3, _4, _5));
+                       *subGyroData_, *subAccData_, *subAttData_));
+  sync_->registerCallback(boost::bind(&RealSenseImgLogger::CbSyncData, this, _1, _2, _3, _4, _5, _6));
+
+  // generating publisher for the fake usb cam
+  pubFakeUsbImgRaw_ = it_.advertise(cfgParam_.strPubTpNmRsFakeUsbImgRaw, 1);  
 }
 
 RealSenseImgLogger::~RealSenseImgLogger()
@@ -33,7 +35,8 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
                                     const sensor_msgs::ImageConstPtr& msgImgDepthAligned,
                                     const sensor_msgs::CameraInfoConstPtr& msgCamInfo,
                                     const sensor_msgs::ImuConstPtr& msgGyroData,
-                                    const sensor_msgs::ImuConstPtr& msgAccData)
+                                    const sensor_msgs::ImuConstPtr& msgAccData,
+                                    const sensor_msgs::ImuConstPtr& msgAttData)
 {
   // grabbing the image frame, color image
   try
@@ -75,7 +78,7 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
   nWidth_ = imgColorRaw.cols;
 
   // generating inertial info w.r.t. body axis
-  bodyInertialInfo_ = GenImuData(msgGyroData, msgAccData);
+  ahrsInfo_ = GenImuData(msgGyroData, msgAccData, msgAttData);
 
   // generating camera intrinsic, extrinsic information
   camInfoRaw_ = *msgCamInfo;
@@ -83,6 +86,9 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
   // getting depth value
   // float distance = 0.001*imgDepthRaw.at<u_int16_t>(320, 240);
   // std::cout<<distance<<std::endl;
+
+  sensor_msgs::ImagePtr msgFakeUsbImgRaw = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imgColorRaw_).toImageMsg();
+  pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);  
 }
 
 // main loop
@@ -160,26 +166,61 @@ bool RealSenseImgLogger::GenLogFolder(string strFolderPath)
     return false;
   }
 }
-
 // making imu data
-BodyLinAccRotRate RealSenseImgLogger::GenImuData(const sensor_msgs::ImuConstPtr& msgGyroData,
-                                                 const sensor_msgs::ImuConstPtr& msgAccData)
+AHRSinfo RealSenseImgLogger::GenImuData(const sensor_msgs::ImuConstPtr& msgGyroData,
+                                        const sensor_msgs::ImuConstPtr& msgAccData,
+                                        const sensor_msgs::ImuConstPtr& msgAttData)
 {
   sensor_msgs::Imu GyroRaw;
   sensor_msgs::Imu AccRaw;
+  sensor_msgs::Imu AttRaw;
   GyroRaw = *msgGyroData;
   AccRaw = *msgAccData;
+  AttRaw = *msgAttData;
+  
+  Quaterniond quatAttRazorImu;
+  Vector3d eularAttRazorImu;
+  quatAttRazorImu.x() = AttRaw.orientation.x;
+  quatAttRazorImu.y() = AttRaw.orientation.y;
+  quatAttRazorImu.z() = AttRaw.orientation.z;
+  quatAttRazorImu.w() = AttRaw.orientation.w;      
+  eularAttRazorImu = CalcYPREulerAngFromQuaternion(quatAttRazorImu);
 
-  BodyLinAccRotRate res;
-  res.linAcc(0) = AccRaw.linear_acceleration.x;
-  res.linAcc(1) = AccRaw.linear_acceleration.y;
-  res.linAcc(2) = AccRaw.linear_acceleration.z;
-  res.rotRate(0) = GyroRaw.angular_velocity.x;
-  res.rotRate(1) = GyroRaw.angular_velocity.y;
-  res.rotRate(2) = GyroRaw.angular_velocity.z;
+  // using NED frame and 3-2-1 conversion
+  AHRSinfo res;
+  res.euler(0) = wrapD((eularAttRazorImu(0) - PI));
+  res.euler(1) = wrapD((-1.0) * (eularAttRazorImu(1)));
+  res.euler(2) = wrapD((-1.0) * (eularAttRazorImu(2) - PI));
+  res.linAcc(0) = (-1.0) * (AccRaw.linear_acceleration.z);
+  res.linAcc(1) = (-1.0) * (AccRaw.linear_acceleration.x);
+  res.linAcc(2) = AccRaw.linear_acceleration.y;
+  res.rotRate(0) = GyroRaw.angular_velocity.y;
+  res.rotRate(1) = (-1.0) * (GyroRaw.angular_velocity.x);
+  res.rotRate(2) = (-1.0) * (GyroRaw.angular_velocity.z);
 
   return res;
 }
+
+
+// // making imu data
+// BodyLinAccRotRate RealSenseImgLogger::GenImuData(const sensor_msgs::ImuConstPtr& msgGyroData,
+//                                                  const sensor_msgs::ImuConstPtr& msgAccData)
+// {
+//   sensor_msgs::Imu GyroRaw;
+//   sensor_msgs::Imu AccRaw;
+//   GyroRaw = *msgGyroData;
+//   AccRaw = *msgAccData;
+
+//   BodyLinAccRotRate res;
+//   res.linAcc(0) = AccRaw.linear_acceleration.x;
+//   res.linAcc(1) = AccRaw.linear_acceleration.y;
+//   res.linAcc(2) = AccRaw.linear_acceleration.z;
+//   res.rotRate(0) = GyroRaw.angular_velocity.x;
+//   res.rotRate(1) = GyroRaw.angular_velocity.y;
+//   res.rotRate(2) = GyroRaw.angular_velocity.z;
+
+//   return res;
+// }
 
 // making normalized depth image
 Mat RealSenseImgLogger::GenNormDepthImg(Mat imgInput)
@@ -206,4 +247,39 @@ Mat RealSenseImgLogger::GenFalseColorDepthImg(Mat imgInput)
   Mat imgRes;
   applyColorMap(imgInput, imgRes, COLORMAP_RAINBOW);
   return imgRes;
+}
+
+// converting the quaternion to the Euler angle(3-2-1, ZYX, YPR) [rad]
+Vector3d RealSenseImgLogger::CalcYPREulerAngFromQuaternion(Quaterniond q)
+{
+  tf2::Quaternion quat(q.x(), q.y(), q.z(), q.w());
+  tf2::Matrix3x3 matQuat(quat);
+  Vector3d result;
+  double dYaw, dPitch, dRoll = 0.0;
+  matQuat.getEulerYPR(dYaw, dPitch, dRoll);
+  result(0) = wrapD(dRoll);
+  result(1) = wrapD(dPitch);
+  result(2) = wrapD(dYaw);
+  return result;
+}
+
+// wrap-up function, angle between -PI and PI
+double RealSenseImgLogger::wrapD(double angle)
+{
+  angle = fmod(angle, 2.0 * PI);
+
+  if (angle < -PI)
+  {
+    angle += 2.0 * PI;
+  }
+  else if (angle > PI)
+  {
+    angle -= 2.0 * PI;
+  }
+  else
+  {
+    angle = angle;
+  }
+
+  return angle;
 }

@@ -16,7 +16,13 @@
 #include <sys/types.h>
 
 // for using eigen library
+#include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Geometry>
+
+// for using tf w.r.t the quaternion
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/utils.h>
 
 // for using boost asio library
 #include <boost/asio.hpp>

@@ -35,16 +35,25 @@ int main(int argc, char** argv)
     case MYNTEYE:
     {
       ROS_INFO("usecase: mynteye stereo camera");
+
+      // generating log folder
+      myntEyeImgLogger.GenLogFolder(cfg.strCamImgLogFolderPath);
       break;
     }
     case REALSENSE:
     {
       ROS_INFO("usecase: realsense stereo camera");
+
+      // generating log folder
+      realSenseImgLogger.GenLogFolder(cfg.strCamImgLogFolderPath);
       break;
     }
     case ROTORSVISCAM:
     {
       ROS_INFO("usecase: rotors_simulator vi camera");
+
+      // generating log folder
+      rotorSimViLogger.GenLogFolder(cfg.strCamImgLogFolderPath);
       break;
     }
     default:

@@ -59,8 +59,10 @@ public:
   string strSubTpNmRsImgDepthAligned;
   string strSubTpNmRsGyroDataProc;
   string strSubTpNmRsAccDataProc;
+  string strSubTpNmRsAttDataProc;
   string strPubTpNmRsImuDataProc;
   string strPubTpNmRsImgImuSync;
+  string strPubTpNmRsFakeUsbImgRaw;
 
   int nRsSyncPolicy;
 

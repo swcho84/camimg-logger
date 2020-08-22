@@ -16,11 +16,13 @@ RealSenseStereoCam:
     DepthImg: "/realsense/aligned_depth_to_color/image_raw"
     GyroData: "/realsense/gyro/sample"
     AccData: "/realsense/accel/sample"
+    AttData: "/imu"
   PubTopicName:
     ImuData: "/realsense/imu_data"
     ImgImuSync: "/realsense/synced_data"
+    FakeUsbImg: "/usb_cam/image_raw"
   SyncPolicy:
-    time: 50
+    time: 100
 
 RotorsSimViCam:
   SubTopicName:

@@ -46,10 +46,12 @@ bool ConfigParam::ReadRosParams()
     ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/DepthImg", strSubTpNmRsImgDepthAligned);
     ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/GyroData", strSubTpNmRsGyroDataProc);
     ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/AccData", strSubTpNmRsAccDataProc);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/AttData", strSubTpNmRsAttDataProc);
 
     // topic name, for publisher, realsense stereo camera
     ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/ImuData", strPubTpNmRsImuDataProc);
     ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/ImgImuSync", strPubTpNmRsImgImuSync);
+    ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/FakeUsbImg", strPubTpNmRsFakeUsbImgRaw);
 
     // params realsense stereo camera
     ReadRosParam(nh, "/RealSenseStereoCam/SyncPolicy/time", nRsSyncPolicy);

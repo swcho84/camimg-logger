@@ -23,4 +23,11 @@ typedef struct
   Eigen::Vector3f rotRate;
 } BodyLinAccRotRate;
 
+typedef struct
+{
+  Eigen::Vector3d euler;
+  Eigen::Vector3d linAcc;
+  Eigen::Vector3d rotRate;
+} AHRSinfo;
+
 #endif

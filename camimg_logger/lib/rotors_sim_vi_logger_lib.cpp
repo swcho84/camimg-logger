@@ -8,9 +8,6 @@ using namespace message_filters;
 RotorSimViLogger::RotorSimViLogger(const ConfigParam& cfg)
   : cfgParam_(cfg), it_(nh_), nHeight_(640), nWidth_(480), bStartCamCallBack_(false), dAccumTime_(0.0)
 {
-  // generating log folder
-  GenLogFolder(cfgParam_.strCamImgLogFolderPath);
-
   // generating callback function using synced subscriber
   subColorRectImg_.reset(
       new message_filters::Subscriber<sensor_msgs::Image>(nh_, cfgParam_.strSubTpNmRotorSimViImgLeftColor, 1));
@@ -20,7 +17,8 @@ RotorSimViLogger::RotorSimViLogger(const ConfigParam& cfg)
       new message_filters::Subscriber<sensor_msgs::CameraInfo>(nh_, cfgParam_.strSubTpNmRotorSimViCamInfo, 1));
   subOdomData_.reset(
       new message_filters::Subscriber<nav_msgs::Odometry>(nh_, cfgParam_.strSubTpNmRotorSimViOdomData, 1));
-  sync_.reset(new Sync(mySyncPolicy(cfgParam_.nRotorSimViSyncPolicy), *subColorRectImg_, *subDepthAlignedImg_, *subCamInfo_, *subOdomData_));
+  sync_.reset(new Sync(mySyncPolicy(cfgParam_.nRotorSimViSyncPolicy), *subColorRectImg_, *subDepthAlignedImg_,
+                       *subCamInfo_, *subOdomData_));
   sync_->registerCallback(boost::bind(&RotorSimViLogger::CbSyncData, this, _1, _2, _3, _4));
 }
 

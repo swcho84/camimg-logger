@@ -15,13 +15,12 @@ public:
   ~RotorSimViLogger();
 
   void MainLoop(double dt);
+  bool GenLogFolder(string strFolderPath);
 
 private:
   ConfigParam cfgParam_;
 
   sensor_msgs::CameraInfo camInfoRaw_;
-
-  bool GenLogFolder(string strFolderPath);
 
   void CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColorRect,
                   const sensor_msgs::ImageConstPtr& msgImgDepthAligned,
