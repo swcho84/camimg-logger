@@ -44,5 +44,5 @@ CamImgLog:
   Sensor: 22
   Info:
     Name: "left_color_img"
-    Hz: 1.0
+    Hz: 0.5
     Type: "png"

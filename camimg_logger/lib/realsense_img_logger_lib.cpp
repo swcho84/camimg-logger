@@ -69,8 +69,8 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
   cvtColor(imgColorRaw, imgColorRaw_, COLOR_BGRA2BGR);
 
   // for treating usecase
-  imgFakeUSBPub_ = imgColorRaw_;
-  imgColorLog_ = imgColorRaw_;
+  imgColorRaw_.copyTo(imgFakeUSBPub_);
+  imgColorRaw_.copyTo(imgColorLog_);
 
   // generating processed depth image
   Mat& imgDepthRaw = cvPtrImgDepthSrc_->image;
@@ -90,17 +90,6 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
   // getting depth value
   // float distance = 0.001*imgDepthRaw.at<u_int16_t>(320, 240);
   // std::cout<<distance<<std::endl;
-
-  // generating saved counter in fake usb raw image
-  int thickness = 3;
-  Point location(20, 50);
-  int font = FONT_HERSHEY_SIMPLEX;
-  double fontScale = 1.2;
-  string strCounter;
-  strCounter = "saved: " + to_string(nSaveCounter_ - 1);
-  putText(imgFakeUSBPub_, strCounter, location, font, fontScale, Scalar(0, 0, 255), thickness);
-  sensor_msgs::ImagePtr msgFakeUsbImgRaw = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imgFakeUSBPub_).toImageMsg();
-  pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);
 }
 
 // main loop
@@ -120,6 +109,21 @@ void RealSenseImgLogger::MainLoop(double dt)
   // saving AHRS data in the target file
   timeInfo_ = cfgParam_.GenLocalTimeVec(cfgParam_.GenLocalTimeStringFacet());
   LoggingStreamState(dt);
+
+  // generating saved counter in fake usb raw image
+  int thickness = 3;
+  Point location(20, 50);
+  int font = FONT_HERSHEY_SIMPLEX;
+  double fontScale = 1.2;
+  string strCounter;
+  strCounter = "saved: " + to_string(nSaveCounter_ - 1);
+  putText(imgFakeUSBPub_, strCounter, location, font, fontScale, Scalar(0, 0, 255), thickness);
+  sensor_msgs::ImagePtr msgFakeUsbImgRaw = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imgFakeUSBPub_).toImageMsg();
+  pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);  
+
+  imshow("imgFakeUSBPub_", imgFakeUSBPub_);
+  imshow("imgColorLog_", imgColorLog_);
+
 
   // for highgui window
   waitKey(5);
