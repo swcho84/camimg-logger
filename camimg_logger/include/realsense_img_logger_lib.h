@@ -82,6 +82,8 @@ private:
   FILE* logFp_;
 
   Mat imgColorRaw_;
+  Mat imgFakeUSBPub_;
+  Mat imgColorLog_;
   Mat imgDepthNorm_;
   Mat imgDepthFalseColor_;
 

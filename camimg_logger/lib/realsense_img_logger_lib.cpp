@@ -68,6 +68,10 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
   Mat& imgColorRaw = cvPtrImgColorSrc_->image;
   cvtColor(imgColorRaw, imgColorRaw_, COLOR_BGRA2BGR);
 
+  // for treating usecase
+  imgFakeUSBPub_ = imgColorRaw_;
+  imgColorLog_ = imgColorRaw_;
+
   // generating processed depth image
   Mat& imgDepthRaw = cvPtrImgDepthSrc_->image;
   imgDepthNorm_ = GenNormDepthImg(imgDepthRaw);
@@ -94,8 +98,8 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
   double fontScale = 1.2;
   string strCounter;
   strCounter = "saved: " + to_string(nSaveCounter_ - 1);
-  putText(imgColorRaw_, strCounter, location, font, fontScale, Scalar(0, 0, 255), thickness);
-  sensor_msgs::ImagePtr msgFakeUsbImgRaw = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imgColorRaw_).toImageMsg();
+  putText(imgFakeUSBPub_, strCounter, location, font, fontScale, Scalar(0, 0, 255), thickness);
+  sensor_msgs::ImagePtr msgFakeUsbImgRaw = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imgFakeUSBPub_).toImageMsg();
   pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);
 }
 
@@ -111,7 +115,7 @@ void RealSenseImgLogger::MainLoop(double dt)
 
   // saving image in the target folder
   bool bSaveRes = false;
-  bSaveRes = SaveRawImg(dt, imgColorRaw_, cfgParam_.strCamImgLogFolderPath);
+  bSaveRes = SaveRawImg(dt, imgColorLog_, cfgParam_.strCamImgLogFolderPath);
 
   // saving AHRS data in the target file
   timeInfo_ = cfgParam_.GenLocalTimeVec(cfgParam_.GenLocalTimeStringFacet());
