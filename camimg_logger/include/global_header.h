@@ -81,4 +81,7 @@
 #define R2D 180.0 / PI
 #define D2R PI / 180.0
 
+#define VGAWIDTH    640
+#define VGAHEIGHT   480
+
 #endif

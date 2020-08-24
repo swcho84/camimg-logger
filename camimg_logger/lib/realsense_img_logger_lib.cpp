@@ -67,6 +67,7 @@ void RealSenseImgLogger::CbSyncData(const sensor_msgs::ImageConstPtr& msgImgColo
   // making raw and depth image
   Mat& imgColorRaw = cvPtrImgColorSrc_->image;
   cvtColor(imgColorRaw, imgColorRaw_, COLOR_BGRA2BGR);
+  resize(imgColorRaw_, imgColorRaw_, Size(VGAWIDTH, VGAHEIGHT), 0, 0, CV_INTER_NN);
 
   // for treating usecase
   imgColorRaw_.copyTo(imgFakeUSBPub_);
