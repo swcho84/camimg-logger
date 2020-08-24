@@ -7,7 +7,15 @@ using namespace Eigen;
 using namespace message_filters;
 
 RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
-  : cfgParam_(cfg), it_(nh_), nHeight_(640), nWidth_(480), bStartCamCallBack_(false), dAccumTime_(0.0), dAhrsLogCount_(0.0), nSaveCounter_(0)
+  : cfgParam_(cfg)
+  , it_(nh_)
+  , nHeight_(640)
+  , nWidth_(480)
+  , bStartCamCallBack_(false)
+  , dAccumTime_(0.0)
+  , dAhrsLogCount_(0.0)
+  , nSaveCounter_(0)
+  , dBattVolt_(0.0)
 {
   // generating callback function using synced subscriber
   subColorRectImg_.reset(
@@ -24,10 +32,20 @@ RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
 
   // generating publisher for the fake usb cam
   pubFakeUsbImgRaw_ = it_.advertise(cfgParam_.strPubTpNmRsFakeUsbImgRaw, 1);
+
+  // subscribing the xycar states
+  subXycarState_ = nh_.subscribe("/sensors/core", 1, &RealSenseImgLogger::CbXycarState, this);
 }
 
 RealSenseImgLogger::~RealSenseImgLogger()
 {
+}
+
+// callback function for monitoring xycar states
+void RealSenseImgLogger::CbXycarState(const vesc_msgs::VescStateStampedConstPtr& msgVescStateStampedRaw)
+{
+  msgVescStateStamped_ = *msgVescStateStampedRaw;
+  dBattVolt_ = msgVescStateStamped_.state.voltage_input;
 }
 
 // callback function using synced data for mynteye camera
@@ -112,19 +130,22 @@ void RealSenseImgLogger::MainLoop(double dt)
   LoggingStreamState(dt);
 
   // generating saved counter in fake usb raw image
-  int thickness = 3;
-  Point location(20, 50);
+  int thickness = 2;
+  Point locationCounter(20, 30);
+  Point locationBattVolt(20, 60);  
   int font = FONT_HERSHEY_SIMPLEX;
   double fontScale = 1.2;
   string strCounter;
   strCounter = "saved: " + to_string(nSaveCounter_ - 1);
-  putText(imgFakeUSBPub_, strCounter, location, font, fontScale, Scalar(0, 0, 255), thickness);
+  string strBattVolt;
+  strBattVolt = "batt: " + to_string((float)(dBattVolt_)) + "[V]";
+  putText(imgFakeUSBPub_, strCounter, locationCounter, font, fontScale, Scalar(0, 0, 255), thickness);
+  putText(imgFakeUSBPub_, strBattVolt, locationBattVolt, font, fontScale, Scalar(0, 0, 255), thickness);  
   sensor_msgs::ImagePtr msgFakeUsbImgRaw = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imgFakeUSBPub_).toImageMsg();
-  pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);  
+  pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);
 
   imshow("imgFakeUSBPub_", imgFakeUSBPub_);
   imshow("imgColorLog_", imgColorLog_);
-
 
   // for highgui window
   waitKey(5);
@@ -368,10 +389,10 @@ string RealSenseImgLogger::GenLogColTypeInfo()
 
   // column information
   strRes = "%.2lf, %.2lf, %.2lf, %.2lf, %.2lf, %lf, %.20Lf, "
-            "%.4lf, %.4lf, %.4lf, "
-            "%.4lf, %.4lf, %.4lf, "
-            "%.4lf, %.4lf, %.4lf\n";
- 
+           "%.4lf, %.4lf, %.4lf, "
+           "%.4lf, %.4lf, %.4lf, "
+           "%.4lf, %.4lf, %.4lf\n";
+
   return strRes;
 }
 
@@ -383,22 +404,9 @@ bool RealSenseImgLogger::WritingData()
   bool bState = true;
   long double dRostime = (long double)(ros::Time::now().toSec());
 
-  if (fprintf(logFp_, GenLogColTypeInfo().c_str(),
-              timeInfo_.dYear,
-              timeInfo_.dMonth,
-              timeInfo_.dDay,
-              timeInfo_.dHour,
-              timeInfo_.dMin,
-              timeInfo_.dSec,
-              dRostime,
-              ahrsInfo_.euler(0),
-              ahrsInfo_.euler(1),
-              ahrsInfo_.euler(2),
-              ahrsInfo_.linAcc(0),
-              ahrsInfo_.linAcc(1),
-              ahrsInfo_.linAcc(2),
-              ahrsInfo_.rotRate(0),
-              ahrsInfo_.rotRate(1),
+  if (fprintf(logFp_, GenLogColTypeInfo().c_str(), timeInfo_.dYear, timeInfo_.dMonth, timeInfo_.dDay, timeInfo_.dHour,
+              timeInfo_.dMin, timeInfo_.dSec, dRostime, ahrsInfo_.euler(0), ahrsInfo_.euler(1), ahrsInfo_.euler(2),
+              ahrsInfo_.linAcc(0), ahrsInfo_.linAcc(1), ahrsInfo_.linAcc(2), ahrsInfo_.rotRate(0), ahrsInfo_.rotRate(1),
               ahrsInfo_.rotRate(2)) < 0)
   {
     ROS_ERROR("Log write, both: failed..");

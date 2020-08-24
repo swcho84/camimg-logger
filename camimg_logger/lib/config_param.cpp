@@ -96,7 +96,7 @@ bool ConfigParam::ReadRosParams()
       }
     }
     strCamImgLogFolderPath = strHomeName + strMidPath + "/" + GenLocalTimeStringNormal() + "_" + strCamImgLogFolderNm;
-    
+
     dTimeAhrsLog = 0.2;
     strAhrsLogFilePath = strCamImgLogFolderPath + "/" + GenLocalTimeStringNormal() + "_" + "AHRS_log" + ".csv";
   }
@@ -137,7 +137,7 @@ string ConfigParam::GenLocalTimeStringFacet()
                                                  boost::local_time::time_zone_ptr());
   auto facet = new boost::posix_time::time_facet("%Y %m %d %H %M %s");
   ss.imbue(std::locale(std::locale::classic(), facet));
-  ss << currentTime.local_time();  
+  ss << currentTime.local_time();
   return ss.str();
 }
 

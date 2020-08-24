@@ -81,7 +81,7 @@ public:
 
   int nCamImgLogComCase;
   int nCamImgLogSensor;
-  
+
   double dTimeAhrsLog;
   double dCamImgLogHz;
 

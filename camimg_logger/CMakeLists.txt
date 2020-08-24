@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   tf2
   tf2_ros  
+  vesc_msgs  
   cv_bridge
   image_transport
   message_generation
@@ -156,7 +157,8 @@ catkin_package(
   sensor_msgs
   nav_msgs
   tf2
-  tf2_ros  
+  tf2_ros
+  vesc_msgs
   cv_bridge
   image_transport
   message_generation

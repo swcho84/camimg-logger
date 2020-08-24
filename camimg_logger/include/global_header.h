@@ -70,6 +70,10 @@
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Byte.h>
 
+// for using xycar state
+#include <vesc_msgs/VescStateStamped.h>
+#include <vesc_msgs/VescState.h>
+
 #define MAINCOM 1
 #define EMBEDDED 2
 
@@ -81,7 +85,7 @@
 #define R2D 180.0 / PI
 #define D2R PI / 180.0
 
-#define VGAWIDTH    640
-#define VGAHEIGHT   480
+#define VGAWIDTH 640
+#define VGAHEIGHT 480
 
 #endif

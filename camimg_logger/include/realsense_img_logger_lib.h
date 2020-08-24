@@ -69,6 +69,10 @@ private:
   typedef message_filters::Synchronizer<mySyncPolicy> Sync;
   std::shared_ptr<Sync> sync_;
 
+  Subscriber subXycarState_;
+  void CbXycarState(const vesc_msgs::VescStateStampedConstPtr& msgVescStateStampedRaw);
+  vesc_msgs::VescStateStamped msgVescStateStamped_;
+
   int nHeight_;
   int nWidth_;
 
@@ -88,6 +92,8 @@ private:
   Mat imgDepthFalseColor_;
 
   TimeDB timeInfo_;
+
+  double dBattVolt_;
 };
 
 #endif
