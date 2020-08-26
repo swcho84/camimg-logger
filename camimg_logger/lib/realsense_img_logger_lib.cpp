@@ -352,8 +352,8 @@ string RealSenseImgLogger::GenLogColNameInfo()
   ROS_INFO("Log file column setting");
   strRes = "year,month,day,hh,mm,ss,ros_time,"
            "roll,pitch,yaw,"
-           "p,q,r,"
-           "xbacc,ybacc,zbacc\n";
+           "xbacc,ybacc,zbacc,"
+           "p,q,r\n";
 
   return strRes;
 }
