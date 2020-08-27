@@ -45,7 +45,8 @@ int main(int argc, char** argv)
       ROS_INFO("usecase: realsense stereo camera");
 
       // generating log folder
-      realSenseImgLogger.bLogFolderOpenStatus = realSenseImgLogger.GenLogFolder(cfg.strCamImgLogFolderPath);
+      realSenseImgLogger.bLogFolderOpenStatus =
+          realSenseImgLogger.GenLogFolder(cfg.strCamImgLogFolderPath, cfg.strAhrsImgFolderPath);
       realSenseImgLogger.bLogFileOpenStatus = realSenseImgLogger.GenLogFile(cfg.strAhrsLogFilePath);
       break;
     }

@@ -78,6 +78,7 @@ public:
   string strCamImgLogFolderNm;
   string strCamImgLogFolderPath;
   string strAhrsLogFilePath;
+  string strAhrsImgFolderPath;
 
   int nCamImgLogComCase;
   int nCamImgLogSensor;

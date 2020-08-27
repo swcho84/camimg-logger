@@ -16,7 +16,7 @@ public:
   ~RealSenseImgLogger();
 
   void MainLoop(double dt);
-  bool GenLogFolder(string strFolderPath);
+  bool GenLogFolder(string strFolderPath, string strAhrsImgFolderPath);
   bool GenLogFile(string strFilePath);
 
   bool bLogFolderOpenStatus;
@@ -25,6 +25,7 @@ public:
 private:
   ConfigParam cfgParam_;
   AHRSinfo ahrsInfo_;
+  AHRSinfo ahrsInfoPrev_;
 
   sensor_msgs::CameraInfo camInfoRaw_;
 
@@ -45,7 +46,7 @@ private:
   string GenLogColNameInfo();
   bool WritingData();
   string GenLogColTypeInfo();
-  void LoggingStreamState(double dt);
+  void LoggingStreamState(double dt, Mat imgInput);
 
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;

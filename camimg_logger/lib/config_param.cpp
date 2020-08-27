@@ -97,7 +97,8 @@ bool ConfigParam::ReadRosParams()
     }
     strCamImgLogFolderPath = strHomeName + strMidPath + "/" + GenLocalTimeStringNormal() + "_" + strCamImgLogFolderNm;
 
-    dTimeAhrsLog = 0.1;  // 0.1 [sec]
+    dTimeAhrsLog = 0.2;  // 0.2 [sec]
+    strAhrsImgFolderPath = strCamImgLogFolderPath + "/ahrs_img";
     strAhrsLogFilePath = strCamImgLogFolderPath + "/" + GenLocalTimeStringNormal() + "_" + "AHRS_log" + ".csv";
   }
   catch (RosParamNotFoundException& ex)

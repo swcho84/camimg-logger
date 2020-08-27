@@ -35,6 +35,17 @@ RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
 
   // subscribing the xycar states
   subXycarState_ = nh_.subscribe("/sensors/core", 1, &RealSenseImgLogger::CbXycarState, this);
+
+  // initializing ahrs data
+  for (unsigned int i = 0; i < 3; i++)
+  {
+    ahrsInfo_.euler(i) = 0.0;
+    ahrsInfo_.linAcc(i) = 0.0;
+    ahrsInfo_.rotRate(i) = 0.0;
+    ahrsInfoPrev_.euler(i) = 0.0;
+    ahrsInfoPrev_.linAcc(i) = 0.0;
+    ahrsInfoPrev_.rotRate(i) = 0.0;
+  }
 }
 
 RealSenseImgLogger::~RealSenseImgLogger()
@@ -127,12 +138,12 @@ void RealSenseImgLogger::MainLoop(double dt)
 
   // saving AHRS data in the target file
   timeInfo_ = cfgParam_.GenLocalTimeVec(cfgParam_.GenLocalTimeStringFacet());
-  LoggingStreamState(dt);
+  LoggingStreamState(dt, imgColorLog_);
 
   // generating saved counter in fake usb raw image
   int thickness = 2;
   Point locationCounter(20, 30);
-  Point locationBattVolt(20, 60);  
+  Point locationBattVolt(20, 60);
   int font = FONT_HERSHEY_SIMPLEX;
   double fontScale = 1.2;
   string strCounter;
@@ -140,12 +151,16 @@ void RealSenseImgLogger::MainLoop(double dt)
   string strBattVolt;
   strBattVolt = "batt: " + to_string((float)(dBattVolt_)) + "[V]";
   putText(imgFakeUSBPub_, strCounter, locationCounter, font, fontScale, Scalar(0, 0, 255), thickness);
-  putText(imgFakeUSBPub_, strBattVolt, locationBattVolt, font, fontScale, Scalar(0, 0, 255), thickness);  
+  putText(imgFakeUSBPub_, strBattVolt, locationBattVolt, font, fontScale, Scalar(0, 0, 255), thickness);
   sensor_msgs::ImagePtr msgFakeUsbImgRaw = cv_bridge::CvImage(std_msgs::Header(), "bgr8", imgFakeUSBPub_).toImageMsg();
   pubFakeUsbImgRaw_.publish(msgFakeUsbImgRaw);
 
+  // for debugging
   imshow("imgFakeUSBPub_", imgFakeUSBPub_);
   imshow("imgColorLog_", imgColorLog_);
+
+  // saving current data
+  ahrsInfoPrev_ = ahrsInfo_;
 
   // for highgui window
   waitKey(5);
@@ -179,41 +194,48 @@ bool RealSenseImgLogger::SaveRawImg(double dt, Mat imgInput, string strFolderPat
 }
 
 // generating log folder
-bool RealSenseImgLogger::GenLogFolder(string strFolderPath)
+bool RealSenseImgLogger::GenLogFolder(string strFolderPath, string strAhrsImgFolderPath)
 {
   // default: -1, folder generation failure status
   // 0, folder generation success
-  ROS_INFO("Log folder path: %s", strFolderPath.c_str());
-  boost::filesystem::path dataDir(strFolderPath.c_str());
+  ROS_INFO("Raw Image log folder path: %s", strFolderPath.c_str());
+  ROS_INFO("AHRS Image log folder path: %s", strAhrsImgFolderPath.c_str());
+  boost::filesystem::path dataImgDir(strFolderPath.c_str());
+  boost::filesystem::path dataAhrsDir(strFolderPath.c_str());
 
   int nRes = -1;
-  if (!boost::filesystem::is_directory(dataDir))
+  if ((!boost::filesystem::is_directory(dataImgDir)) && (!boost::filesystem::is_directory(dataAhrsDir)))
   {
-    ROS_INFO("Making log folder in ~/.ros folder, %s", strFolderPath.c_str());
+    ROS_INFO("Making raw image log folder in ~/.ros folder, %s", strFolderPath.c_str());
+    ROS_INFO("Making AHRS image log folder in ~/.ros folder, %s", strAhrsImgFolderPath.c_str());
 
     // 0777: full permission for access, read and write
     nRes = mkdir(strFolderPath.c_str(), 0777);
+    nRes = mkdir(strAhrsImgFolderPath.c_str(), 0777);
   }
   else
   {
-    ROS_INFO("Log folder path is exist..");
+    ROS_INFO("Image log folder path is exist..");
     nRes = 0;
   }
 
   // generating folder status
   if (nRes == 0)
   {
-    ROS_INFO("Success: log folder generation, path: %s", strFolderPath.c_str());
+    ROS_INFO("Success: image log folder generation, path: %s", strFolderPath.c_str());
+    ROS_INFO("Success: ahrs image log folder generation, path: %s", strAhrsImgFolderPath.c_str());
     return true;
   }
   else if (nRes < 0)
   {
     ROS_ERROR("Failure: log folder generation, path: %s", strFolderPath.c_str());
+    ROS_ERROR("Failure: log folder generation, path: %s", strAhrsImgFolderPath.c_str());
     return false;
   }
   else
   {
     ROS_ERROR("Error: log folder generation, path: %s", strFolderPath.c_str());
+    ROS_ERROR("Error: log folder generation, path: %s", strAhrsImgFolderPath.c_str());
     return false;
   }
 }
@@ -359,7 +381,7 @@ string RealSenseImgLogger::GenLogColNameInfo()
 }
 
 // logging data with the sampling counter
-void RealSenseImgLogger::LoggingStreamState(double dt)
+void RealSenseImgLogger::LoggingStreamState(double dt, Mat imgInput)
 {
   if (!bLogFileOpenStatus)
   {
@@ -379,6 +401,49 @@ void RealSenseImgLogger::LoggingStreamState(double dt)
     }
 
     dAhrsLogCount_ = 0.0;
+  }
+
+  // Simple AHRS anomaly detection loop, Dr.Sunghun Seo, ver.200827
+  double dDelXbacc = fabs(ahrsInfo_.linAcc(0) - ahrsInfoPrev_.linAcc(0));
+  double dDelYbacc = fabs(ahrsInfo_.linAcc(1) - ahrsInfoPrev_.linAcc(1));
+  double dDelZbacc = fabs(ahrsInfo_.linAcc(2) - ahrsInfoPrev_.linAcc(2));
+  double dDelAccThres = 5.0;
+  double dAccThres = 5.0;
+
+  double dDelP = fabs(ahrsInfo_.rotRate(0) - ahrsInfoPrev_.rotRate(0));
+  double dDelQ = fabs(ahrsInfo_.rotRate(1) - ahrsInfoPrev_.rotRate(1));
+  double dDelR = fabs(ahrsInfo_.rotRate(2) - ahrsInfoPrev_.rotRate(2));
+  double dDelGyroThres = 0.35;
+  double dXGyroThres = 0.8;
+  double dYGyroThres = 0.4;
+  double dZGyroThres = 0.5;
+
+  string strAhrsImgLogFilePath;
+  strAhrsImgLogFilePath = cfgParam_.strAhrsImgFolderPath + "/" + "etridb_ca_raw_" +
+                          cfgParam_.GenLocalTimeStringNormal() + "." + cfgParam_.strCamImgLogFileType;
+
+  if (((dDelXbacc > dDelAccThres) || (dDelYbacc > dDelAccThres) || (dDelZbacc > dDelAccThres)) ||
+      (((fabs(ahrsInfo_.linAcc(0))) > dAccThres) || ((fabs(ahrsInfo_.linAcc(1))) > dAccThres) ||
+       ((fabs(ahrsInfo_.linAcc(2) + 9.8)) > dAccThres)))
+  {
+    imwrite(strAhrsImgLogFilePath, imgInput);
+
+    if (!WritingData())
+    {
+      ROS_ERROR("Log write result: failed..");
+    }    
+  }
+
+  if (((dDelP > dDelGyroThres) || (dDelQ > dDelGyroThres) || (dDelR > dDelGyroThres)) ||
+      (((fabs(ahrsInfo_.rotRate(0))) > dXGyroThres) || ((fabs(ahrsInfo_.rotRate(1))) > dYGyroThres) ||
+       ((fabs(ahrsInfo_.rotRate(2))) > dZGyroThres)))
+  {
+    imwrite(strAhrsImgLogFilePath, imgInput);
+
+    if (!WritingData())
+    {
+      ROS_ERROR("Log write result: failed..");
+    }    
   }
 }
 
