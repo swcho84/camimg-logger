@@ -27,6 +27,8 @@ private:
   AHRSinfo ahrsInfo_;
   AHRSinfo ahrsInfoPrev_;
 
+  Publisher pubAhrsData_;
+
   sensor_msgs::CameraInfo camInfoRaw_;
 
   bool SaveRawImg(double dt, Mat imgInput, string strFolderPath);

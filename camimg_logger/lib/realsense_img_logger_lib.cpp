@@ -30,6 +30,9 @@ RealSenseImgLogger::RealSenseImgLogger(const ConfigParam& cfg)
                        *subGyroData_, *subAccData_, *subAttData_));
   sync_->registerCallback(boost::bind(&RealSenseImgLogger::CbSyncData, this, _1, _2, _3, _4, _5, _6));
 
+  // generating publisher for AHRS data
+  pubAhrsData_ = nh_.advertise<std_msgs::Float32MultiArray>("/sensors/ahrs_data", 1);
+
   // generating publisher for the fake usb cam
   pubFakeUsbImgRaw_ = it_.advertise(cfgParam_.strPubTpNmRsFakeUsbImgRaw, 1);
 
@@ -263,13 +266,27 @@ AHRSinfo RealSenseImgLogger::GenImuData(const sensor_msgs::ImuConstPtr& msgGyroD
   AHRSinfo res;
   res.euler(0) = wrapD((eularAttRazorImu(0) - PI));
   res.euler(1) = wrapD((-1.0) * (eularAttRazorImu(1)));
-  res.euler(2) = wrapD((-1.0) * (eularAttRazorImu(2) - PI));
-  res.linAcc(0) = (-1.0) * (AccRaw.linear_acceleration.z);
-  res.linAcc(1) = (-1.0) * (AccRaw.linear_acceleration.x);
-  res.linAcc(2) = AccRaw.linear_acceleration.y;
-  res.rotRate(0) = GyroRaw.angular_velocity.y;
-  res.rotRate(1) = (-1.0) * (GyroRaw.angular_velocity.x);
-  res.rotRate(2) = (-1.0) * (GyroRaw.angular_velocity.z);
+  res.euler(2) = wrapD((-1.0) * (eularAttRazorImu(2)));
+  res.linAcc(0) = (AccRaw.linear_acceleration.z);
+  res.linAcc(1) = (AccRaw.linear_acceleration.x);
+  res.linAcc(2) = (AccRaw.linear_acceleration.y);
+  res.rotRate(0) = (GyroRaw.angular_velocity.z);
+  res.rotRate(1) = (GyroRaw.angular_velocity.x);
+  res.rotRate(2) = (GyroRaw.angular_velocity.y);
+
+  // publishing data for checking sign
+  std_msgs::Float32MultiArray msgAhrsData;
+  msgAhrsData.data.resize(9);
+  msgAhrsData.data[0] = res.euler(0) * R2D;
+  msgAhrsData.data[1] = res.euler(1) * R2D;
+  msgAhrsData.data[2] = res.euler(2) * R2D;
+  msgAhrsData.data[3] = res.linAcc(0);
+  msgAhrsData.data[4] = res.linAcc(1);
+  msgAhrsData.data[5] = res.linAcc(2);
+  msgAhrsData.data[6] = res.rotRate(0) * R2D;
+  msgAhrsData.data[7] = res.rotRate(1) * R2D;
+  msgAhrsData.data[8] = res.rotRate(2) * R2D;
+  pubAhrsData_.publish(msgAhrsData);               
 
   return res;
 }
