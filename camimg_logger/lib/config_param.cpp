@@ -97,9 +97,14 @@ bool ConfigParam::ReadRosParams()
     }
     strCamImgLogFolderPath = strHomeName + strMidPath + "/" + GenLocalTimeStringNormal() + "_" + strCamImgLogFolderNm;
 
+    int nRand = 0;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(0, 325679);
+    nRand = dis(gen);
     dTimeAhrsLog = 0.2;  // 0.2 [sec]
     strAhrsImgFolderPath = strCamImgLogFolderPath + "/ahrs_img";
-    strAhrsLogFilePath = strCamImgLogFolderPath + "/" + GenLocalTimeStringNormal() + "_" + "AHRS_log" + ".csv";
+    strAhrsLogFilePath = strCamImgLogFolderPath + "/" + GenLocalTimeStringNormal() + "_" + "AHRS_log" + to_string(nRand) + ".csv";
   }
   catch (RosParamNotFoundException& ex)
   {

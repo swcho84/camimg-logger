@@ -10,6 +10,8 @@
 #include <vector>
 #include <dirent.h>
 #include <fstream>
+#include <cstdlib> // for std::rand() and std::srand()
+#include <random>
 
 // for using folder generation
 #include <sys/stat.h>
