@@ -4,14 +4,43 @@ MyntEyeDStereoCam:
     ColorImg: "/mynteye/left/image_color"
     DepthImg: "/mynteye/depth/image_raw"
     ImuData: "/mynteye/imu/data_raw_processed"
-  
   PubTopicName:
     ImgImuSync: "/mynteye/synced_data"
+  SyncPolicy:
+    time: 10  
 
-# case 0: desktop/laptop
-# case 1: jetson tx2/nano/xavier
+RealSenseStereoCam:
+  SubTopicName:
+    CamInfo: "/realsense/color/camera_info"
+    ColorImg: "/realsense/color/image_rect_color"
+    DepthImg: "/realsense/aligned_depth_to_color/image_raw"
+    GyroData: "/realsense/gyro/sample"
+    AccData: "/realsense/accel/sample"
+  PubTopicName:
+    ImuData: "/realsense/imu_data"
+    ImgImuSync: "/realsense/synced_data"
+  SyncPolicy:
+    time: 50
+
+RotorsSimViCam:
+  SubTopicName:
+    CamInfo: "/firefly/vi_sensor/left/camera_info"
+    ColorImg: "/firefly/vi_sensor/left/image_raw"
+    DepthImg: "/firefly/vi_sensor/camera_depth/camera/image_raw"
+    OdomData: "/firefly/odometry_sensor1/odometry"
+  PubTopicName:
+    ImgImuSync: "/firefly/synced_data"
+  SyncPolicy:
+    time: 10    
+
+# case 1: desktop/laptop
+# case 2: jetson tx2/nano/xavier
+# sensor 11: mynteye camera D1000-50 or D1000-120
+# sensor 22: realsense camera R435i
+# sensor 33: rotors_simulator vi stereo camera
 CamImgLog:
-  Case: 0
+  ComCase: 1
+  Sensor: 33
   Info:
     Name: "left_color_img"
     Hz: "1.0"

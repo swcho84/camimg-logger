@@ -28,24 +28,54 @@ bool ConfigParam::ReadRosParams()
     // general information
     strHomeName = getenv("HOME");
 
-    // topic name, for subscriber
+    // topic name, for subscriber, mynteye stereo camera
     ReadRosParam(nh, "/MyntEyeDStereoCam/SubTopicName/CamInfo", strSubTpNmMyntEyeCamInfo);
     ReadRosParam(nh, "/MyntEyeDStereoCam/SubTopicName/ColorImg", strSubTpNmMyntEyeImgLeftColor);
     ReadRosParam(nh, "/MyntEyeDStereoCam/SubTopicName/DepthImg", strSubTpNmMyntEyeImgDepthRaw);
     ReadRosParam(nh, "/MyntEyeDStereoCam/SubTopicName/ImuData", strSubTpNmMyntEyeImuDataProc);
 
-    // topic name, for publisher
+    // topic name, for publisher, mynteye stereo camera
     ReadRosParam(nh, "/MyntEyeDStereoCam/PubTopicName/ImgImuSync", strPubTpNmMyntEyeImgImuSync);
 
+    // params mynteye stereo camera
+    ReadRosParam(nh, "/MyntEyeDStereoCam/SyncPolicy/time", nMyntEyeSyncPolicy);
+
+    // topic name, for subscriber, realsense stereo camera
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/CamInfo", strSubTpNmRsCamInfo);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/ColorImg", strSubTpNmRsImgColorRect);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/DepthImg", strSubTpNmRsImgDepthAligned);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/GyroData", strSubTpNmRsGyroDataProc);
+    ReadRosParam(nh, "/RealSenseStereoCam/SubTopicName/AccData", strSubTpNmRsAccDataProc);
+
+    // topic name, for publisher, realsense stereo camera
+    ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/ImuData", strPubTpNmRsImuDataProc);
+    ReadRosParam(nh, "/RealSenseStereoCam/PubTopicName/ImgImuSync", strPubTpNmRsImgImuSync);
+
+    // params realsense stereo camera
+    ReadRosParam(nh, "/RealSenseStereoCam/SyncPolicy/time", nRsSyncPolicy);
+
+    // topic name, for subscriber, rotors_simulator vi camera
+    ReadRosParam(nh, "/RotorsSimViCam/SubTopicName/CamInfo", strSubTpNmRotorSimViCamInfo);
+    ReadRosParam(nh, "/RotorsSimViCam/SubTopicName/ColorImg", strSubTpNmRotorSimViImgLeftColor);
+    ReadRosParam(nh, "/RotorsSimViCam/SubTopicName/DepthImg", strSubTpNmRotorSimViImgDepthRaw);
+    ReadRosParam(nh, "/RotorsSimViCam/SubTopicName/OdomData", strSubTpNmRotorSimViOdomData);
+
+    // topic name, for publisher, rotors_simulator vi camera
+    ReadRosParam(nh, "/RotorsSimViCam/PubTopicName/ImgImuSync", strPubTpNmRotorSimViImgImuSync);
+
+    // params rotors_simulator vi camera
+    ReadRosParam(nh, "/RotorsSimViCam/SyncPolicy/time", nRotorSimViSyncPolicy);
+
     // camera image logger folder and speed info.
-    ReadRosParam(nh, "/CamImgLog/Case", nCamImgLogCase);
+    ReadRosParam(nh, "/CamImgLog/ComCase", nCamImgLogComCase);
+    ReadRosParam(nh, "/CamImgLog/Sensor", nCamImgLogSensor);
     ReadRosParam(nh, "/CamImgLog/Info/Type", strCamImgLogFileType);
     ReadRosParam(nh, "/CamImgLog/Info/Name", strCamImgLogFolderNm);
     ReadRosParam(nh, "/CamImgLog/Info/Hz", dCamImgLogHz);
 
     // making folder path
     string strMidPath;
-    switch (nCamImgLogCase)
+    switch (nCamImgLogComCase)
     {
       case MAINCOM:
       {

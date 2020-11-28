@@ -1,5 +1,5 @@
-#ifndef CAMIMG_LOGGER_CAMIMG_LOGGER_LIB_H
-#define CAMIMG_LOGGER_CAMIMG_LOGGER_LIB_H
+#ifndef CAMIMG_LOGGER_MYNTEYE_IMG_LOGGER_LIB_H
+#define CAMIMG_LOGGER_MYNTEYE_IMG_LOGGER_LIB_H
 
 #include "global_header.h"
 #include "config_param.h"
@@ -15,14 +15,13 @@ public:
   ~MyntEyeImgLogger();
 
   void MainLoop(double dt);
+  bool GenLogFolder(string strFolderPath);
 
 private:
   ConfigParam cfgParam_;
   BodyLinAccRotRate bodyInertialInfo_;
 
   sensor_msgs::CameraInfo camInfoRaw_;
-
-  bool GenLogFolder(string strFolderPath);
   bool SaveRawImg(double dt, Mat imgInput, string strFolderPath);
 
   Mat GenFalseColorDepthImg(Mat imgInput);
@@ -36,7 +35,6 @@ private:
   image_transport::ImageTransport it_;
 
   // ROS message for images
-  cv_bridge::CvImagePtr cvPtrImgSrc_;
   cv_bridge::CvImagePtr cvPtrImgColorSrc_;
   cv_bridge::CvImagePtr cvPtrImgDepthSrc_;
 

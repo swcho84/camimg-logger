@@ -13,6 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
   rosconsole
   std_msgs
   sensor_msgs
+  nav_msgs
+  tf2
+  tf2_ros
   cv_bridge
   image_transport
   message_generation
@@ -30,7 +33,8 @@ find_package(Boost REQUIRED COMPONENTS system thread)
 find_library(CPPREST_LIB cpprest)
 
 # using eigen3
-find_library(Eigen3 REQUIRED eigen3)
+find_package(PkgConfig)
+pkg_search_module(Eigen3 REQUIRED eigen3)
 include_directories(${EIGEN3_INCLUDE_DIR})
 add_definitions(${EIGEN3_DEFINITIONS})
 
@@ -46,19 +50,13 @@ else()
 endif()
 
 # using opencv
-find_package(OpenCV 3.4 REQUIRED
+find_package(OpenCV 4.2.0 REQUIRED
   COMPONENTS
     opencv_core
     opencv_imgproc
     opencv_imgcodecs
     opencv_highgui
     opencv_videoio
-    opencv_flann
-    opencv_tracking
-    opencv_video
-    opencv_xphoto
-    opencv_calib3d
-    opencv_features2d
   CONFIG
 )
 
@@ -156,6 +154,9 @@ catkin_package(
   rosconsole
   std_msgs
   sensor_msgs
+  nav_msgs
+  tf2
+  tf2_ros  
   cv_bridge
   image_transport
   message_generation
@@ -188,7 +189,7 @@ add_definitions(${BOOST_DEFINITIONS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 
 ## Declare a C++ library
-add_executable(camimg_logger_node src/main.cpp lib/mynteye_img_logger_lib.cpp lib/config_param.cpp include/mynteye_img_logger_lib.h include/config_param.h include/global_header.h include/var_struct.h)
+add_executable(camimg_logger_node src/main.cpp lib/rotors_sim_vi_logger_lib.cpp include/rotors_sim_vi_logger_lib.h lib/realsense_img_logger_lib.cpp include/realsense_img_logger_lib.h lib/mynteye_img_logger_lib.cpp include/mynteye_img_logger_lib.h lib/config_param.cpp include/config_param.h include/global_header.h include/var_struct.h)
 target_link_libraries(camimg_logger_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${EIGEN_LIBRARIES} ${OpenCV_LIBS} ${DLIB_LIBRARIES} dlib pthread cpprest serial)
 add_dependencies(camimg_logger_node ${catkin_EXPORTED_TARGETS})
 

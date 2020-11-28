@@ -16,7 +16,13 @@
 #include <sys/types.h>
 
 // for using eigen library
+#include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Geometry>
+
+// for using tf w.r.t the quaternion
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/utils.h>
 
 // for using boost asio library
 #include <boost/asio.hpp>
@@ -49,6 +55,9 @@
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/Imu.h>
 
+// for subscribing pose information (timestamp should be needed for time sync)
+#include <nav_msgs/Odometry.h>
+
 // for subscribing multiple topic with the syncronizer
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -61,8 +70,12 @@
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Byte.h>
 
-#define MAINCOM 0
-#define EMBEDDED 1
+#define MAINCOM 1
+#define EMBEDDED 2
+
+#define MYNTEYE 11
+#define REALSENSE 22
+#define ROTORSVISCAM 33
 
 #define PI 3.141592
 #define R2D 180.0 / PI

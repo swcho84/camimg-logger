@@ -52,11 +52,32 @@ public:
   string strSubTpNmMyntEyeImuDataProc;
   string strPubTpNmMyntEyeImgImuSync;
 
+  int nMyntEyeSyncPolicy;
+
+  string strSubTpNmRsCamInfo;
+  string strSubTpNmRsImgColorRect;
+  string strSubTpNmRsImgDepthAligned;
+  string strSubTpNmRsGyroDataProc;
+  string strSubTpNmRsAccDataProc;
+  string strPubTpNmRsImuDataProc;
+  string strPubTpNmRsImgImuSync;
+
+  int nRsSyncPolicy;
+
+  string strSubTpNmRotorSimViCamInfo;
+  string strSubTpNmRotorSimViImgLeftColor;
+  string strSubTpNmRotorSimViImgDepthRaw;
+  string strSubTpNmRotorSimViOdomData;
+  string strPubTpNmRotorSimViImgImuSync;
+
+  int nRotorSimViSyncPolicy;
+
   string strCamImgLogFileType;
   string strCamImgLogFolderNm;
   string strCamImgLogFolderPath;
 
-  int nCamImgLogCase;
+  int nCamImgLogComCase;
+  int nCamImgLogSensor;
 
   double dCamImgLogHz;
 
