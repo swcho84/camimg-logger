@@ -1,2 +1,69 @@
 # camimg-logger
-image logger using camera (monocular/stereo camera)
+## image logger using camera (monocular/stereo camera)
+------
+------
+## image and ahrs data logger
+- 코드에 작성한 주석 참고하기
+- sensor node 에서 publish 하는 data 들을 sync 하여 read 하는 역할
+- 지정된 data 는 logging 수행
+------
+## 실행방법
+- launch file 을 활용하여 실행
+- 실행 전에 params.yaml 에서 목적에 맞게 parameter 셋팅해야 함
+------
+## Parameter 설명
+- MyntEyeDStereoCam: mynteye stereo camera 정보 read 하기 위한 설정
+  - target sensor: MYNTEYE-D-120/50
+  - SubTopicName: subscription 에 필요한 topinc name 설정
+    - CamInfo: camera intrinsic/extrinsic parameter 
+    - ColorImg: color image
+    - DepthImg: depth image
+    - ImuData: imu data (gyro and acc)
+  - PubTopicName: publication 에 필요한 topic name 설정
+    - ImgImuSync: synced data publication (img and imu)
+  - SyncPolicy: synced multi-subscription 에 필요한 설정
+    - time: duration time
+- RealSenseStereoCam: intel realsense stereo camera 정보 read 하기 위한 설정
+  - target sensor: intel realsense D435i, D455, T265
+  - SubTopicName: subscription 에 필요한 topinc name 설정
+    - CamInfo: camera intrinsic/extrinsic parameter 
+    - ColorImg: color image  (T265: gray image)
+    - DepthImg: depth image
+    - GyroData: gyro data
+    - AccData: acc data
+  - PubTopicName: publication 에 필요한 topic name 설정
+    - ImuData: ros 에서 제공하는 imu data 형태로 publish 하기 위한 설정
+    - ImgImuSync: synced data publication (img and imu)
+  - SyncPolicy: synced multi-subscription 에 필요한 설정
+    - time: duration time
+- RotorsSimViCam: ROS/Gazebo simulation 에서 사용하는 stereo camera 정보 read 하기 위한 설정
+  - target sensor: Gazebo-plugin stereo camera
+  - SubTopicName: subscription 에 필요한 topinc name 설정
+    - CamInfo: camera intrinsic/extrinsic parameter 
+    - ColorImg: color image
+    - DepthImg: depth image
+    - OdomData: odometry data (including position/attitude)
+  - PubTopicName: publication 에 필요한 topic name 설정
+    -ImgImuSync: synced data publication (img and imu)
+  - SyncPolicy: synced multi-subscription 에 필요한 설정
+    - time: duration time
+- CamImgLog: image and ahrs data logger node 를 실행하기 위해 필요한 parameter
+  - ComCase: 실행환경 설정
+    - 1: desktop/laptop
+    - 2: jetson tx2/nano/xavier
+  - Sensor: 사용센서 설정
+    - 11: mynteye camera D1000-50 or D1000-120
+    - 22: realsense camera R435i
+    - 33: rotors_simulator vi stereo camera
+  - Info: logging 시 필요한 설정
+    - Name: 파일 이름 설정 시 필요한 내용 (파일 이름 앞부분 지정)
+    - Hz: logging 속도
+    - Type: image data file types
+------
+------
+## Installation
+- 설치 필요한 libraries: CMakeList.txt 참고 (line. 7 to line 61)
+- 설치방법은 인터넷 검색을 통해 참고 (대부분 설치방법 단순함)
+- OpenCV 설치 시 GPU 사용을 하려면 주의해야 함 (숙련자가 수행할 것을 추천)
+- 유의사항: cmake 실행 시 -DCMAKE_INSTALL_PREFIX=/usr/local 을 추가할 것
+------    
