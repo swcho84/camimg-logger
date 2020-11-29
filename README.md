@@ -12,6 +12,7 @@
 - 실행 전에 params.yaml 에서 목적에 맞게 parameter 셋팅해야 함
 ------
 ## Parameter 설명
+- getenv("HOME") 을 통해 home folder 의 경로는 자동으로 추출하고 있음, 이 경로 이후의 정보를 parameterize 해야 함
 - MyntEyeDStereoCam: mynteye stereo camera 정보 read 하기 위한 설정
   - target sensor: MYNTEYE-D-120/50
   - SubTopicName: subscription 에 필요한 topinc name 설정
