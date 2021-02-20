@@ -50,7 +50,7 @@ else()
 endif()
 
 # using opencv
-find_package(OpenCV 4.2.0 REQUIRED
+find_package(OpenCV 4.5.0 REQUIRED
   COMPONENTS
     opencv_core
     opencv_imgproc
